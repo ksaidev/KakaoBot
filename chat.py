@@ -26,3 +26,18 @@ class Chat:
             "msg": msg,
             "noSeen": False,
         })))
+        
+    async def delete(self):
+        await self.writer.sendPacket(Packet(0, 0, "DELETEMSG", 0, bson.encode({
+            "chatId":self.chatId,
+            "logId":self.logId
+        })))
+        
+    async def hide(self):
+        if self.li:
+            await self.writer.sendPacket(Packet(0, 0, "REWRITE", 0, bson.encode({
+                "c":chat.chatId,
+                "li":chat.li,
+                "logId":chat.logId,
+                "t":1
+            })))
