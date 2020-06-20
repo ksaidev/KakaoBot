@@ -38,7 +38,7 @@ class Client:
         currentPacketSize = 0
 
         while True:
-            recv = await self.__StreamReader.read(512)
+            recv = await self.__StreamReader.read(256)
 
             if not recv:
                 print(recv)
