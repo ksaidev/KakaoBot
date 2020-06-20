@@ -6,8 +6,6 @@ class Chat:
     def __init__(self, writer, packet):
         self.writer = writer
         self.rawBody = packet.toJsonBody()
-        
-        print(self.rawBody)
 
         self.chatId = self.rawBody["chatLog"]["chatId"]
         self.logId = self.rawBody["chatLog"]["logId"]
