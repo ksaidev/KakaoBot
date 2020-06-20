@@ -10,35 +10,41 @@ from bson import BSON as bson
 import httpLogin
 import json
 import struct
+import writer
+import chat
+
 class Client:
-    def __init__(self, device_name="DEVICE", device_uuid = "REVWSUNFMQ=="):
+    def __init__(self, device_name="DEVICE", device_uuid="REVWSUNFMQ=="):
         self.__sock: Socket
-        self.__reader: asyncio.StreamReader
-        self.__writer: asyncio.StreamWriter
+        self.__StreamReader: asyncio.StreamReader
+        self.__StreamWriter: asyncio.StreamWriter
         self.__crypto: cryptoManager.CryptoManager
+        self.__writer: writer.Writer
         self.__accessKey: str
 
         self.device_name = device_name
         self.device_uuid = device_uuid
 
-        
         self.__packetID = 0
 
         self.__processingBuffer = b""
         self.__processingHeader = b""
         self.__processingSize = 0
 
+        self.packetDict = {}
+        
     async def __recvPacket(self):
         encryptedBuffer = b""
         currentPacketSize = 0
 
         while True:
-            recv = await self.__reader.read(512)
-            
+            recv = await self.__StreamReader.read(512)
+
             if not recv:
                 print(recv)
                 self.loop.stop()
-            
+                break
+
             encryptedBuffer += recv
 
             if not currentPacketSize and len(encryptedBuffer) >= 4:
@@ -49,7 +55,8 @@ class Client:
                 encryptedPacketSize = currentPacketSize+4
 
                 if len(encryptedBuffer) >= encryptedPacketSize:
-                    self.loop.create_task(self.__processingPacket(encryptedBuffer[0:encryptedPacketSize]))
+                    self.loop.create_task(self.__processingPacket(
+                        encryptedBuffer[0:encryptedPacketSize]))
                     encryptedBuffer = encryptedBuffer[encryptedPacketSize:]
                     currentPacketSize = 0
 
@@ -57,7 +64,7 @@ class Client:
         encLen = encryptedPacket[0:4]
         IV = encryptedPacket[4:20]
         BODY = encryptedPacket[20:]
-        
+
         self.__processingBuffer += self.__crypto.aesDecrypt(BODY, IV)
 
         if not self.__processingHeader and len(self.__processingBuffer) >= 22:
@@ -68,27 +75,37 @@ class Client:
         if self.__processingHeader:
             if len(self.__processingBuffer) >= self.__processingSize:
                 p = Packet()
-                p.readLocoPacket(self.__processingBuffer[:self.__processingSize])
-                
-                self.loop.create_task(self.onPacket(p))
+                p.readLocoPacket(
+                    self.__processingBuffer[:self.__processingSize])
+
+                self.loop.create_task(self.__onPacket(p))
+
                 self.__processingBuffer = self.__processingBuffer[self.__processingSize:]
                 self.__processingHeader = b""
 
-    async def onPacket(self, packet):
-        #stub
-        pass
+    async def __onPacket(self, packet):
+        if packet.PacketID in self.packetDict:
+            self.packetDict[packet.PacketID].set_result(packet)
+            del self.packetDict[packet.PacketID]
+        
+        self.loop.create_task(self.onPacket(packet))
+        
+        if packet.PacketName == "MSG":
+            chatC = chat.Chat(self.__writer, packet)
+            self.loop.create_task(self.onMessage(chatC))
     
+    async def onPacket(self, packet):
+        pass
+
+    async def onMessage(self, chat):
+        pass
+
     async def __heartbeat(self):
         while True:
             await asyncio.sleep(180)
-            PingPacket = Packet(self.__getPacketID(), 0, "PING", 0, bson.encode({}))
-            self.__writer.write(
-                PingPacket.toEncryptedLocoPacket(self.__crypto))
-            await self.__writer.drain()
-
-    def __getPacketID(self):
-        self.__packetID += 1
-        return self.__packetID
+            PingPacket = Packet(0, 0,
+                                "PING", 0, bson.encode({}))
+            self.loop.create_task(self.__writer.sendPacket(PingPacket))
 
     def run(self, LoginId, LoginPw):
         self.loop = asyncio.get_event_loop()
@@ -96,22 +113,28 @@ class Client:
         self.loop.run_forever()
 
     async def __login(self, LoginId, LoginPw,):
-        r = httpLogin.Login(LoginId, LoginPw, self.device_name, self.device_uuid)
+        r = json.loads(httpLogin.Login(
+            LoginId, LoginPw, self.device_name, self.device_uuid))
 
-        self.__accessKey = json.loads(r)["access_token"]
-        #print(self.__accessKey)
-        
+        if r["status"] != 0:
+            self.loop.stop()
+            raise Exception(str(r["message"]))
+
+        self.__accessKey = r["access_token"]
+        # print(self.__accessKey)
+
         bookingData = booking.getBookingData().toJsonBody()
 
         checkInData = checkIn.getCheckInData(
             bookingData["ticket"]["lsl"][0],
             bookingData["wifi"]["ports"][0]).toJsonBody()
 
-        self.__reader, self.__writer = await asyncio.open_connection(checkInData["host"], int(checkInData["port"]))
+        self.__StreamReader, self.__StreamWriter = await asyncio.open_connection(checkInData["host"], int(checkInData["port"]))
 
         self.__crypto = cryptoManager.CryptoManager()
-        
-        LoginListPacket = Packet(self.__getPacketID(), 0, "LOGINLIST", 0, bson.encode({
+        self.__writer = writer.Writer(self.__crypto, self.__StreamWriter)
+
+        LoginListPacket = Packet(0, 0, "LOGINLIST", 0, bson.encode({
             "appVer": "3.1.1.2441",
             "prtVer": "1",
             "os": "win32",
@@ -129,12 +152,10 @@ class Client:
             "bg": False,
         }))
 
-        self.__writer.write(self.__crypto.getHandshakePacket())
+        self.__StreamWriter.write(self.__crypto.getHandshakePacket())
 
-        self.__writer.write(
-            LoginListPacket.toEncryptedLocoPacket(self.__crypto))
-        await self.__writer.drain()
+        self.loop.create_task(self.__writer.sendPacket(LoginListPacket))
 
         self.loop.create_task(self.__recvPacket())
         self.loop.create_task(self.__heartbeat())
-        
+
