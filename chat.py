@@ -17,11 +17,11 @@ class Chat:
             self.attachment = self.rawBody["chatLog"]["attachment"]
         self.nickName = self.rawBody["authorNickname"]
 
-    async def reply(self, msg):
+    async def reply(self, msg, extra = "{}", t = 1):
         await self.writer.sendPacket(packet.Packet(0, 0, "WRITE", 0, bson.encode({
             "chatId": self.chatId,
-            "extra": "{}",
-            "type": 1,
+            "extra": extra,
+            "type": t,
             "msgId": int(time.time()/10),
             "msg": msg,
             "noSeen": False,
