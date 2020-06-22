@@ -18,7 +18,7 @@ class Chat:
         self.nickName = self.rawBody["authorNickname"]
 
     async def reply(self, msg, extra = "{}", t = 1):
-        await self.writer.sendPacket(packet.Packet(0, 0, "WRITE", 0, bson.encode({
+        return await self.writer.sendPacket(packet.Packet(0, 0, "WRITE", 0, bson.encode({
             "chatId": self.chatId,
             "extra": extra,
             "type": t,

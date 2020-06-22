@@ -91,13 +91,24 @@ class Client:
         self.loop.create_task(self.onPacket(packet))
         
         if packet.PacketName == "MSG":
-            chatC = chat.Chat(self.__writer, packet)
-            self.loop.create_task(self.onMessage(chatC))
+            self.loop.create_task(self.onMessage(chat.Chat(self.__writer, packet)))
+        
+        if packet.PacketName == "NEWMEM":
+            self.loop.create_task(self.onJoin())
+        
+        if packet.PacketName == "DELMEM":
+            self.loop.create_task(self.onQuit())
     
     async def onPacket(self, packet):
         pass
 
     async def onMessage(self, chat):
+        pass
+
+    async def onJoin(self):
+        pass
+
+    async def onQuit(self):
         pass
 
     async def __heartbeat(self):
@@ -132,7 +143,7 @@ class Client:
         self.__StreamReader, self.__StreamWriter = await asyncio.open_connection(checkInData["host"], int(checkInData["port"]))
 
         self.__crypto = cryptoManager.CryptoManager()
-        self.__writer = writer.Writer(self.__crypto, self.__StreamWriter)
+        self.__writer = writer.Writer(self.__crypto, self.__StreamWriter, self.packetDict)
 
         LoginListPacket = Packet(0, 0, "LOGINLIST", 0, bson.encode({
             "appVer": "3.1.1.2441",
