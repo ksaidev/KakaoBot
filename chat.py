@@ -15,8 +15,11 @@ class Chat:
 
         if "attachment" in self.rawBody["chatLog"]:
             self.attachment = self.rawBody["chatLog"]["attachment"]
-        self.nickName = self.rawBody["authorNickname"]
 
+        if "li" in self.rawBody:
+            self.li = self.rawBody["li"]
+        self.nickName = self.rawBody["authorNickname"]
+        
     async def reply(self, msg, extra = "{}", t = 1):
         return await self.writer.sendPacket(packet.Packet(0, 0, "WRITE", 0, bson.encode({
             "chatId": self.chatId,
