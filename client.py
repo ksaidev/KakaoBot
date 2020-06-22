@@ -94,10 +94,10 @@ class Client:
             self.loop.create_task(self.onMessage(chat.Chat(self.__writer, packet)))
         
         if packet.PacketName == "NEWMEM":
-            self.loop.create_task(self.onJoin())
+            self.loop.create_task(self.onJoin(packet))
         
         if packet.PacketName == "DELMEM":
-            self.loop.create_task(self.onQuit())
+            self.loop.create_task(self.onQuit(packet))
     
     async def onPacket(self, packet):
         pass
