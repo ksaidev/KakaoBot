@@ -39,8 +39,8 @@ class Chat:
     async def hide(self):
         if self.li:
             await self.writer.sendPacket(packet.Packet(0, 0, "REWRITE", 0, bson.encode({
-                "c":chat.chatId,
-                "li":chat.li,
-                "logId":chat.logId,
+                "c":self.chatId,
+                "li":self.li,
+                "logId":self.logId,
                 "t":1
             })))
