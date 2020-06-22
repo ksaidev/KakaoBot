@@ -23,7 +23,7 @@ class Chat:
             "extra": extra,
             "type": t,
             "msgId": int(time.time()/10),
-            "msg": msg,
+            "msg": str(msg),
             "noSeen": False,
         })))
         
