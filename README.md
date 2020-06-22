@@ -13,11 +13,10 @@
 ```
   powershell .\pip install pymongo
 ```
-5. command 
 ```
   powershell .\pip install pycryptodome
 ```
-6. Install kakaoPy-master.zip
-7. run RegisterDevice.py
-8. edit exam.py ID and Password
-9. enjoy!
+5. Install kakaoPy-master.zip
+6. run RegisterDevice.py
+7. edit exam.py ID and Password
+8. enjoy!
