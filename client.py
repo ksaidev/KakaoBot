@@ -127,9 +127,18 @@ class Client:
         r = json.loads(httpLogin.Login(
             LoginId, LoginPw, self.device_name, self.device_uuid))
 
+        if r["status"] == -101:
+            print("다른곳에 로그인 되있습니다.")
+            print("로그인 되있는 PC에서 로그아웃 해주세요")
+            
+        elif r["status"] == -100:
+            print("디바이스 등록이 안 되어 있습니다.")
+            print("RegisterDevice.py를 실행해주세요")
+        
         if r["status"] != 0:
             self.loop.stop()
             raise Exception(str(r))
+            
 
         self.__accessKey = r["access_token"]
         # print(self.__accessKey)
