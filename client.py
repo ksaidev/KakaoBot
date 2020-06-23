@@ -105,10 +105,10 @@ class Client:
     async def onMessage(self, chat):
         pass
 
-    async def onJoin(self):
+    async def onJoin(self, packet):
         pass
 
-    async def onQuit(self):
+    async def onQuit(self, packet):
         pass
 
     async def __heartbeat(self):
