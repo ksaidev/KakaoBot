@@ -129,7 +129,7 @@ class Client:
 
         if r["status"] != 0:
             self.loop.stop()
-            raise Exception(str(r["message"]))
+            raise Exception(str(r))
 
         self.__accessKey = r["access_token"]
         # print(self.__accessKey)
