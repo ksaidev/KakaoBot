@@ -16,11 +16,15 @@ class Chat:
         self.message = self.rawBody["chatLog"]["message"]
         
         self.authorId = self.rawBody["chatLog"]["authorId"]
-        if "attachment" in self.rawBody["chatLog"]:
-            self.attachment = self.rawBody["chatLog"]["attachment"]
-        else:
-            self.attachment = {}
-
+        
+        try:
+            if "attachment" in self.rawBody["chatLog"]:
+                self.attachment = josn.loads(self.rawBody["chatLog"]["attachment"])
+            else:
+                self.attachment = {}
+        except:
+            pass
+        
         if "li" in self.rawBody:
             self.li = self.rawBody["li"]
         else:
