@@ -38,7 +38,7 @@ class CryptoManager:
 
         return rsa_chiper.encrypt(data)
 
-    def aesEncrypt(self, data, iv=os.urandom(16)):
+    def aesEncrypt(self, data, iv):
         aes_chiper = AES.new(self.aes_key, AES.MODE_CFB, iv, segment_size=128)
         return aes_chiper.encrypt(data)
 

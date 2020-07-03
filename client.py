@@ -7,7 +7,7 @@ import cryptoManager
 import time
 from packet import Packet
 from bson import BSON as bson
-import httpLogin
+import httpApi
 import json
 import struct
 import writer
@@ -124,7 +124,7 @@ class Client:
         self.loop.run_forever()
 
     async def __login(self, LoginId, LoginPw,):
-        r = json.loads(httpLogin.Login(
+        r = json.loads(httpApi.Login(
             LoginId, LoginPw, self.device_name, self.device_uuid))
 
         if r["status"] == -101:
