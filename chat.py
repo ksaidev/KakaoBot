@@ -19,7 +19,7 @@ class Chat:
         
         try:
             if "attachment" in self.rawBody["chatLog"]:
-                self.attachment = josn.loads(self.rawBody["chatLog"]["attachment"])
+                self.attachment = json.loads(self.rawBody["chatLog"]["attachment"])
             else:
                 self.attachment = {}
         except:
