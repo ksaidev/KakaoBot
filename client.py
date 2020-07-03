@@ -94,10 +94,10 @@ class Client:
             self.loop.create_task(self.onMessage(chat.Chat(self.__writer, packet)))
         
         if packet.PacketName == "NEWMEM":
-            self.loop.create_task(self.onJoin(packet))
+            self.loop.create_task(self.onJoin(packet, self.__writer))
         
         if packet.PacketName == "DELMEM":
-            self.loop.create_task(self.onQuit(packet))
+            self.loop.create_task(self.onQuit(packet, self.__writer))
     
     async def onPacket(self, packet):
         pass
@@ -105,10 +105,10 @@ class Client:
     async def onMessage(self, chat):
         pass
 
-    async def onJoin(self, packet):
+    async def onJoin(self, packet, writer):
         pass
 
-    async def onQuit(self, packet):
+    async def onQuit(self, packet, writer):
         pass
 
     async def __heartbeat(self):
@@ -117,11 +117,6 @@ class Client:
             PingPacket = Packet(0, 0,
                                 "PING", 0, bson.encode({}))
             self.loop.create_task(self.__writer.sendPacket(PingPacket))
-
-    def run(self, LoginId, LoginPw):
-        self.loop = asyncio.get_event_loop()
-        self.loop.create_task(self.__login(LoginId, LoginPw))
-        self.loop.run_forever()
 
     async def __login(self, LoginId, LoginPw,):
         r = json.loads(httpApi.Login(
@@ -179,3 +174,8 @@ class Client:
         self.loop.create_task(self.__recvPacket())
         self.loop.create_task(self.__heartbeat())
 
+        
+    def run(self, LoginId, LoginPw):
+        self.loop = asyncio.get_event_loop()
+        self.loop.create_task(self.__login(LoginId, LoginPw))
+        self.loop.run_forever()

@@ -26,12 +26,15 @@ class Chat:
         self.msgId = self.rawBody["chatLog"]["msgId"]
 
         self.authorId = self.rawBody["chatLog"]["authorId"]
-
-        if "attachment" in self.rawBody["chatLog"]:
-            self.attachment = self.rawBody["chatLog"]["attachment"]
-        else:
-            self.attachment = {}
-
+       
+        try:
+            if "attachment" in self.rawBody["chatLog"]:
+                self.attachment = json.loads(self.rawBody["chatLog"]["attachment"])
+            else:
+                self.attachment = {}
+        except:
+            pass
+        
         if "li" in self.rawBody:
             self.li = self.rawBody["li"]
         else:
