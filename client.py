@@ -33,6 +33,9 @@ class Client:
 
         self.packetDict = {}
         
+    def post(self, chatId, li, text):
+        httpApi.postNotice(chatId, li, text, self.__accessKey, self.device_uuid)
+        
     async def __recvPacket(self):
         encryptedBuffer = b""
         currentPacketSize = 0

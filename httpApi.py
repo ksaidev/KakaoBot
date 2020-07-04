@@ -1,5 +1,6 @@
 import requests
 import hashlib
+import json
 
 Agent = "win32"
 Lang = "ko"
@@ -93,6 +94,23 @@ def uploadPhoto(path, userId):
 
     return r.content.decode()
 
+def postNotice(chatId, li, text, accessKey, deviceUUID):
+	if li == 0:
+		url="https://talkmoim-api.kakao.com/chats/{}/posts".format(chatId)
+	else:
+		url="https://open.kakao.com/moim/chats/{}/posts?link_id={}".format(chatId, li)
+	print(requests.post(url,
+		headers = {
+			"A":AuthHeader,
+			"User-Agent": AuthUserAgent,
+			"Authorization":"{}-{}".format(accessKey, deviceUUID),
+			"Accept-Language":"ko"
+		}, data = {
+			"content":json.dumps([{"text":text,"type":"text"}]),
+			"object_type":"TEXT",
+			"notice":"true"
+		}).content.decode())
+		
 def getXVC(email, device_uuid, isFull=False):
     hash = hashlib.sha512("HEATH|{}|DEMIAN|{}|{}".format(
         AuthUserAgent, email, device_uuid).encode("utf-8")).hexdigest()
