@@ -94,7 +94,7 @@ def uploadPhoto(path, userId):
 
     return r.content.decode()
 
-def postNotice(chatId, li, text, accessKey, deviceUUID):
+def postText(chatId, li, text, notice, accessKey, deviceUUID):
 	if li == 0:
 		url="https://talkmoim-api.kakao.com/chats/{}/posts".format(chatId)
 	else:
@@ -108,7 +108,7 @@ def postNotice(chatId, li, text, accessKey, deviceUUID):
 		}, data = {
 			"content":json.dumps([{"text":text,"type":"text"}]),
 			"object_type":"TEXT",
-			"notice":"true"
+			"notice":notice
 		}).content.decode())
 		
 def getXVC(email, device_uuid, isFull=False):
