@@ -4,7 +4,6 @@ from bson import BSON as bson
 import time
 import json
 import os
-from PIL import Image
 import httpApi
 import hashlib
 
@@ -149,10 +148,7 @@ class Chat:
                 "t": 1
             })))
 
-    async def sendPhoto(self, path):
-        image = Image.open(path)
-        w, h = image.size
-
+    async def sendPhoto(self, path, w, h):
         f=open(path, "rb")
         data=f.read()
         f.close()
