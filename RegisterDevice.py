@@ -1,4 +1,4 @@
-import httpLogin
+import httpApi
 
 user_id=str(input("ID: "))
 user_pw=str(input("PW: "))
