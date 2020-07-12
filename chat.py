@@ -6,7 +6,7 @@ import json
 import os
 import httpApi
 import hashlib
-
+import requests
 
 class Chat:
     def __init__(self, writer, packet):
@@ -139,27 +139,25 @@ class Chat:
             "logId": self.logId
         })))
 
-    async def hide(self):
+    async def hide(self, lid=0):
         if self.li:
+            if lid == 0:
+                lid=self.logId
+
             await self.writer.sendPacket(packet.Packet(0, 0, "REWRITE", 0, bson.encode({
                 "c": self.chatId,
-                "li": self.li,
+                "li": lid,
                 "logId": self.logId,
                 "t": 1
             })))
 
-    async def sendPhoto(self, path, w, h):
-        f=open(path, "rb")
-        data=f.read()
-        f.close()
-
-        key = httpApi.uploadPhoto(path, self.authorId)
+    async def sendPhoto(self, data, w, h):
+        key = httpApi.uploadPhoto(data, self.authorId)
 
         u=key.replace('/talkm', "")
 
         url = "https://dn-m.talk.kakao.com/{}".format(key)
 
-        print(key)
         return await self.sendText("", json.dumps({
             "thumbnailUrl": url,
             "thumbnailHeight": w,
@@ -172,3 +170,14 @@ class Chat:
             "h": h,
             "mt": "image/jpeg"
         }), 2)
+
+    async def sendPhotoPath(self, path, w, h):
+        f=open(parh, "rb")
+        data=f.read()
+        f.close()
+
+        return await self,sendPhoto(data, w, h)
+
+    async def sendPhotoUrl(self, url, w, h):
+        r=requests.get(url)
+        return await self.sendPhoto(r.content, w, h)
