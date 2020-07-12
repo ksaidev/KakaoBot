@@ -16,7 +16,7 @@
 ```
   powershell .\pip install pycryptodome
 ```
-5. Install kakaoPy-master.zip
+5. clone this repo
 6. run RegisterDevice.py
 7. edit exam.py ID and Password
 8. enjoy!

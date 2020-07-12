@@ -150,6 +150,13 @@ class Chat:
                 "logId": self.logId,
                 "t": 1
             })))
+    async def kick(self):
+        if self.li:
+            await self.writer.sendPacket(packet.Packet(0, 0, "KICKMEM", 0, bson.encode({
+                "li": self.li,
+                "c": self.chatId,
+                "mid": self.authorId,
+            })))
 
     async def sendPhoto(self, data, w, h):
         key = httpApi.uploadPhoto(data, self.authorId)
