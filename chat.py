@@ -150,6 +150,7 @@ class Chat:
                 "logId": self.logId,
                 "t": 1
             })))
+
     async def kick(self):
         if self.li:
             await self.writer.sendPacket(packet.Packet(0, 0, "KICKMEM", 0, bson.encode({
@@ -187,4 +188,6 @@ class Chat:
 
     async def sendPhotoUrl(self, url, w, h):
         r=requests.get(url)
+        r.raise_for_status()
+
         return await self.sendPhoto(r.content, w, h)
