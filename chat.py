@@ -180,11 +180,11 @@ class Chat:
         }), 2)
 
     async def sendPhotoPath(self, path, w, h):
-        f=open(parh, "rb")
+        f=open(path, "rb")
         data=f.read()
         f.close()
 
-        return await self,sendPhoto(data, w, h)
+        return await self.sendPhoto(data, w, h)
 
     async def sendPhotoUrl(self, url, w, h):
         r=requests.get(url)

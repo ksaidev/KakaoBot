@@ -82,14 +82,14 @@ def Login(email, password, device_name, device_uuid):
 
     return r.content.decode()
 
-def uploadPhoto(path, userId):
+def uploadPhoto(data, userId):
     r = requests.post(MediaUrl, headers={
             "A":AuthHeader,
         }, data={
             "attachment_type":'image/jpeg',
             "user_id":userId,
         }, files={
-            'attachment': open(path,'rb'),
+            'attachment': data,
         })
 
     return r.content.decode()
