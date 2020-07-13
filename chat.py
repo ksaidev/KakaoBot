@@ -146,8 +146,8 @@ class Chat:
 
             await self.writer.sendPacket(packet.Packet(0, 0, "REWRITE", 0, bson.encode({
                 "c": self.chatId,
-                "li": lid,
-                "logId": self.logId,
+                "li": li,
+                "logId": lid,
                 "t": 1
             })))
 
