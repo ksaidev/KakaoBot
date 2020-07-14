@@ -75,7 +75,7 @@ class Chat:
             "t": 2,  # Photo
             "s": len(filedata),
             "c": self.chatId,
-            "mid": self.msgId,
+            "mid": self.authorId,
             "w": w,
             "h": h,
             "ns": False,
@@ -111,7 +111,7 @@ class Chat:
 	"""
 
     async def reply(self, msg, type=0):
-        return await self.sendText(msg, json.dumps({
+        return await self.sendChat(msg, json.dumps({
             "attach_only": False,
             "attach_type": type,
             "mentions": [],
@@ -123,7 +123,7 @@ class Chat:
             "src_userId": self.authorId
         }), 26)
 
-    async def sendText(self, msg, extra="{}", t=1):
+    async def sendChat(self, msg, extra, t):
         return await self.writer.sendPacket(packet.Packet(0, 0, "WRITE", 0, bson.encode({
             "chatId": self.chatId,
             "extra": extra,
@@ -133,21 +133,21 @@ class Chat:
             "noSeen": False,
         })))
 
+    async def sendText(self, msg):
+        return await self.sendChat(msg, "{}", 1)
+
     async def delete(self):
         await self.writer.sendPacket(packet.Packet(0, 0, "DELETEMSG", 0, bson.encode({
             "chatId": self.chatId,
             "logId": self.logId
         })))
 
-    async def hide(self, lid=0):
+    async def hide(self):
         if self.li:
-            if lid == 0:
-                lid=self.logId
-
             await self.writer.sendPacket(packet.Packet(0, 0, "REWRITE", 0, bson.encode({
                 "c": self.chatId,
-                "li": li,
-                "logId": lid,
+                "li": self.li,
+                "logId": self.logId,
                 "t": 1
             })))
 
@@ -160,18 +160,13 @@ class Chat:
             })))
 
     async def sendPhoto(self, data, w, h):
-        key = httpApi.uploadPhoto(data, self.authorId)
-
-        u=key.replace('/talkm', "")
-
-        url = "https://dn-m.talk.kakao.com/{}".format(key)
-
-        return await self.sendText("", json.dumps({
+        path, key, url = httpApi.upload(data, "image/jpeg", self.authorId)
+        return await self.sendChat("", json.dumps({
             "thumbnailUrl": url,
             "thumbnailHeight": w,
             "thumbnailWidth": h,
             "url": url,
-            "k": u,
+            "k": key,
             "cs": hashlib.sha1(data).hexdigest().upper(),
             "s": len(data),
             "w": w,
@@ -191,3 +186,10 @@ class Chat:
         r.raise_for_status()
 
         return await self.sendPhoto(r.content, w, h)
+
+    async def sendLongText(self, title, content):
+        path, key, url = httpApi.upload(content.encode("utf-8"), "image/jpeg", self.authorId)
+
+        return await self.sendChat(title, json.dumps({"path":path, "k":key, "s":len(content), "cs":hashlib.sha1(content.encode("utf-8")).hexdigest().upper(), "sd":True}), 1)
+
+

@@ -77,22 +77,28 @@ def Login(email, password, device_name, device_uuid):
         "device_name": device_name,
         "device_uuid": device_uuid,
         "os_version": OsVersion,
-        "permanent": "true",
+        "permanent": True,
+        "forced":True
     })
 
     return r.content.decode()
 
-def uploadPhoto(data, userId):
+def upload(data, dataType, userId):
     r = requests.post(MediaUrl, headers={
             "A":AuthHeader,
         }, data={
-            "attachment_type":'image/jpeg',
+            "attachment_type":dataType,
             "user_id":userId,
         }, files={
             'attachment': data,
         })
+    path = r.content.decode()
 
-    return r.content.decode()
+    key = path.replace('/talkm', "")
+
+    url = "https://dn-m.talk.kakao.com{}".format(path)
+
+    return path, key, url
 
 def postText(chatId, li, text, notice, accessKey, deviceUUID):
 	if li == 0:
