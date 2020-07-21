@@ -153,7 +153,7 @@ class Client:
         self.__writer = writer.Writer(self.__crypto, self.__StreamWriter, self.packetDict)
 
         LoginListPacket = Packet(0, 0, "LOGINLIST", 0, bson.encode({
-            "appVer": "3.1.1.2441",
+            "appVer": "3.1.4",
             "prtVer": "1",
             "os": "win32",
             "lang": "ko",
@@ -161,7 +161,7 @@ class Client:
             "oauthToken": self.__accessKey,
             "dtype": 1,
             "ntype": 0,
-            "MCCMNC": "",
+            "MCCMNC": "999",
             "revision": 0,
             "chatIds": [],
             "maxIds": [],
