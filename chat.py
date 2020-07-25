@@ -9,12 +9,10 @@ import hashlib
 import requests
 
 class Chat:
-    def __init__(self, writer, packet):
-        self.writer = writer
+    def __init__(self, channel, body):
+        self.channel = channel
 
-        self.rawBody = packet.toJsonBody()
-
-        self.chatId = self.rawBody["chatLog"]["chatId"]
+        self.rawBody = body
 
         self.logId = self.rawBody["chatLog"]["logId"]
 
@@ -34,11 +32,6 @@ class Chat:
         except:
             pass
         
-        if "li" in self.rawBody:
-            self.li = self.rawBody["li"]
-        else:
-            self.li = 0
-
         self.nickName = self.rawBody["authorNickname"]
 
         ########## NOT WORKING ##########
@@ -50,7 +43,7 @@ class Chat:
 
         filehash = hashlib.sha1(filedata).hexdigest()
 
-        shipRecv = (await self.writer.sendPacket(packet.Packet(0, 0, "SHIP", 0, bson.encode({
+        shipRecv = (await self.channel.writer.sendPacket(packet.Packet(0, 0, "SHIP", 0, bson.encode({
             "c": self.chatId,
             "s": len(filedata),
             "t": 2,  # Photo
@@ -111,7 +104,7 @@ class Chat:
 	"""
 
     async def reply(self, msg, t=1):
-        return await self.sendChat(msg, json.dumps({
+        return await self.channel.sendChat(msg, json.dumps({
             "attach_only": False,
             "attach_type": t,
             "mentions": [],
@@ -124,44 +117,23 @@ class Chat:
         }), 26)
 
     async def sendChat(self, msg, extra, t):
-        return await self.writer.sendPacket(packet.Packet(0, 0, "WRITE", 0, bson.encode({
-            "chatId": self.chatId,
-            "extra": extra,
-            "type": t,
-            "msgId": int(time.time()/10),
-            "msg": str(msg),
-            "noSeen": False,
-        })))
+        return await self.channel.sendChat(msg, extra, t)
 
     async def sendText(self, msg):
-        return await self.sendChat(msg, "{}", 1)
+        return await self.channel.sendText(msg)
 
     async def delete(self):
-        await self.writer.sendPacket(packet.Packet(0, 0, "DELETEMSG", 0, bson.encode({
-            "chatId": self.chatId,
-            "logId": self.logId
-        })))
+        return await self.channel.deleteMessage(self.logId)
 
-    async def hide(self, t=1):
-        if self.li:
-            await self.writer.sendPacket(packet.Packet(0, 0, "REWRITE", 0, bson.encode({
-                "c": self.chatId,
-                "li": self.li,
-                "logId": self.logId,
-                "t": t
-            })))
+    async def hide(self):
+        return await self.channel.hideMessage(self.logId, self.type)
 
     async def kick(self):
-        if self.li:
-            await self.writer.sendPacket(packet.Packet(0, 0, "KICKMEM", 0, bson.encode({
-                "li": self.li,
-                "c": self.chatId,
-                "mid": self.authorId,
-            })))
+        return await self.channel.kickMember(self.authorId)
 
     async def sendPhoto(self, data, w, h):
         path, key, url = httpApi.upload(data, "image/jpeg", self.authorId)
-        return await self.sendChat("", json.dumps({
+        return await self.channel.sendChat("", json.dumps({
             "thumbnailUrl": url,
             "thumbnailHeight": w,
             "thumbnailWidth": h,
@@ -190,6 +162,6 @@ class Chat:
     async def sendLongText(self, title, content):
         path, key, url = httpApi.upload(content.encode("utf-8"), "image/jpeg", self.authorId)
 
-        return await self.sendChat(title, json.dumps({"path":path, "k":key, "s":len(content), "cs":hashlib.sha1(content.encode("utf-8")).hexdigest().upper(), "sd":True}), 1)
+        return await self.channel.sendChat(title, json.dumps({"path":path, "k":key, "s":len(content), "cs":hashlib.sha1(content.encode("utf-8")).hexdigest().upper(), "sd":True}), 1)
 
 

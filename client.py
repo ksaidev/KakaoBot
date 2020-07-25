@@ -11,7 +11,8 @@ import httpApi
 import json
 import struct
 import writer
-import chat
+from chat import Chat
+from channel import Channel
 
 class Client:
     def __init__(self, device_name="DEVICE", device_uuid="REVWSUNFMQ=="):
@@ -94,13 +95,27 @@ class Client:
         self.loop.create_task(self.onPacket(packet))
         
         if packet.PacketName == "MSG":
-            self.loop.create_task(self.onMessage(chat.Chat(self.__writer, packet)))
+            body=packet.toJsonBody()
+            
+            chatId = body["chatLog"]["chatId"]
+            
+            if "li" in body:
+                li = body["li"]
+            else:
+                li = 0
+
+            channel = Channel(chatId, li, self.__writer)
+            chat = Chat(channel, body)
+
+            self.loop.create_task(self.onMessage(chat))
         
         if packet.PacketName == "NEWMEM":
-            self.loop.create_task(self.onJoin(packet, self.__writer))
+            channel = Channel(packet, self.__writer)
+            self.loop.create_task(self.onJoin(channel))
         
         if packet.PacketName == "DELMEM":
-            self.loop.create_task(self.onQuit(packet, self.__writer))
+            channel = Channel(packet, self.__writer)
+            self.loop.create_task(self.onQuit(channel))
     
     async def onPacket(self, packet):
         pass
