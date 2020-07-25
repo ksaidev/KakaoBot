@@ -16,10 +16,10 @@ def getCheckInData(host :str, port :int):
 	
 	p = packet.Packet(1, 0, "CHECKIN", 0, bson.encode({
 	    "userId": 0,
-	    "os": "android",
+	    "os": "win32",
 	    "ntype": 0,
-	    "appVer": "8.8.6",
-	    "MCCMNC": "45005",
+	    "appVer": "3.14",
+	    "MCCMNC": "999",
 	    "lang": "ko",
 	}))
 
