@@ -110,10 +110,10 @@ class Chat:
         return (key, filehash, len(filedata))
 	"""
 
-    async def reply(self, msg, type=0):
+    async def reply(self, msg, t=1):
         return await self.sendChat(msg, json.dumps({
             "attach_only": False,
-            "attach_type": type,
+            "attach_type": t,
             "mentions": [],
             "src_linkId": self.li,
             "src_logId": self.logId,
@@ -142,13 +142,13 @@ class Chat:
             "logId": self.logId
         })))
 
-    async def hide(self):
+    async def hide(self, t=1):
         if self.li:
             await self.writer.sendPacket(packet.Packet(0, 0, "REWRITE", 0, bson.encode({
                 "c": self.chatId,
                 "li": self.li,
                 "logId": self.logId,
-                "t": 1
+                "t": t
             })))
 
     async def kick(self):
