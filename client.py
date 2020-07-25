@@ -110,11 +110,29 @@ class Client:
             self.loop.create_task(self.onMessage(chat))
         
         if packet.PacketName == "NEWMEM":
-            channel = Channel(packet, self.__writer)
+            body=packet.toJsonBody()
+            
+            chatId = body["chatLog"]["chatId"]
+            
+            if "li" in body:
+                li = body["li"]
+            else:
+                li = 0
+                
+            channel = Channel(chatId, li, self.__writer)
             self.loop.create_task(self.onJoin(channel))
-        
+            
         if packet.PacketName == "DELMEM":
-            channel = Channel(packet, self.__writer)
+            body=packet.toJsonBody()
+            
+            chatId = body["chatLog"]["chatId"]
+            
+            if "li" in body:
+                li = body["li"]
+            else:
+                li = 0
+                
+            channel = Channel(chatId, li, self.__writer)
             self.loop.create_task(self.onQuit(channel))
     
     async def onPacket(self, packet):
