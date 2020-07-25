@@ -108,7 +108,7 @@ class Chat:
             "attach_only": False,
             "attach_type": t,
             "mentions": [],
-            "src_linkId": self.li,
+            "src_linkId": self.channel.li,
             "src_logId": self.logId,
             "src_mentions": [],
             "src_message": self.message,
