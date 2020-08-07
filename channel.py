@@ -17,7 +17,17 @@ class Channel:
 			"msg": str(msg),
 			"noSeen": False,
 		})))
-        
+		
+	async def forwardChat(self, msg, extra, t):
+		return await self.writer.sendPacket(packet.Packet(0, 0, "FORWARD", 0, bson.encode({
+			"chatId": self.chatId,
+			"extra": extra,
+			"type": t,
+			"msgId": time.time(),
+			"msg": str(msg),
+			"noSeen": False,
+		})))
+		
 	async def sendText(self, msg):
 		return await self.sendChat(msg, "{}", 1)
 		

@@ -162,6 +162,6 @@ class Chat:
     async def sendLongText(self, title, content):
         path, key, url = httpApi.upload(content.encode("utf-8"), "image/jpeg", self.authorId)
 
-        return await self.channel.sendChat(title, json.dumps({"path":path, "k":key, "s":len(content), "cs":hashlib.sha1(content.encode("utf-8")).hexdigest().upper(), "sd":True}), 1)
+        return await self.channel.forwardChat(title, json.dumps({"path":path, "k":key, "s":len(content), "cs":hashlib.sha1(content.encode("utf-8")).hexdigest().upper(), "sd":True}), 1)
 
 
