@@ -21,6 +21,7 @@ MoreSettingUrl = "https://sb-talk.kakao.com/win32/account/more_settings.json?sin
 
 MediaUrl = "https://up-m.talk.kakao.com/upload"
 
+
 def RequestPasscode(email, password, device_name, device_uuid):
     r = requests.post(RequestPasscodeUrl, headers={
         "Content-Type": "application/x-www-form-urlencoded",
@@ -63,6 +64,7 @@ def RegisterDevice(email, password, device_name, device_uuid, passcode):
 
     return r.content.decode()
 
+
 def Login(email, password, device_name, device_uuid):
     r = requests.post(LoginUrl, headers={
         "Content-Type": "application/x-www-form-urlencoded",
@@ -78,20 +80,21 @@ def Login(email, password, device_name, device_uuid):
         "device_uuid": device_uuid,
         "os_version": OsVersion,
         "permanent": True,
-        "forced":True
+        "forced": True
     })
 
     return r.content.decode()
 
+
 def upload(data, dataType, userId):
     r = requests.post(MediaUrl, headers={
-            "A":AuthHeader,
-        }, data={
-            "attachment_type":dataType,
-            "user_id":userId,
-        }, files={
-            'attachment': data,
-        })
+        "A": AuthHeader,
+    }, data={
+        "attachment_type": dataType,
+        "user_id": userId,
+    }, files={
+        'attachment': data,
+    })
     path = r.content.decode()
 
     key = path.replace('/talkm', "")
@@ -100,23 +103,26 @@ def upload(data, dataType, userId):
 
     return path, key, url
 
+
 def postText(chatId, li, text, notice, accessKey, deviceUUID):
-	if li == 0:
-		url="https://talkmoim-api.kakao.com/chats/{}/posts".format(chatId)
-	else:
-		url="https://open.kakao.com/moim/chats/{}/posts?link_id={}".format(chatId, li)
-	print(requests.post(url,
-		headers = {
-			"A":AuthHeader,
-			"User-Agent": AuthUserAgent,
-			"Authorization":"{}-{}".format(accessKey, deviceUUID),
-			"Accept-Language":"ko"
-		}, data = {
-			"content":json.dumps([{"text":text,"type":"text"}]),
-			"object_type":"TEXT",
-			"notice":notice
-		}).content.decode())
-		
+    if li == 0:
+        url = "https://talkmoim-api.kakao.com/chats/{}/posts".format(chatId)
+    else:
+        url = "https://open.kakao.com/moim/chats/{}/posts?link_id={}".format(
+            chatId, li)
+    print(requests.post(url,
+                        headers={
+                            "A": AuthHeader,
+                            "User-Agent": AuthUserAgent,
+                            "Authorization": "{}-{}".format(accessKey, deviceUUID),
+                            "Accept-Language": "ko"
+                        }, data={
+                            "content": json.dumps([{"text": text, "type": "text"}]),
+                            "object_type": "TEXT",
+                            "notice": notice
+                        }).content.decode())
+
+
 def getXVC(email, device_uuid, isFull=False):
     hash = hashlib.sha512("HEATH|{}|DEMIAN|{}|{}".format(
         AuthUserAgent, email, device_uuid).encode("utf-8")).hexdigest()

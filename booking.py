@@ -3,6 +3,7 @@ import ssl
 import packet
 import bson
 
+
 def getBookingData():
     hostname = 'booking-loco.kakao.com'
     context = ssl.create_default_context()
@@ -16,8 +17,7 @@ def getBookingData():
             ssock.write(b.toLocoPacket())
 
             data = ssock.recv(4096)
-            
+
             recvPacket = packet.Packet()
             recvPacket.readLocoPacket(data)
             return recvPacket
-

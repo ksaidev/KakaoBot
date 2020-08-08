@@ -14,6 +14,7 @@ import writer
 from chat import Chat
 from channel import Channel
 
+
 class Client:
     def __init__(self, device_name="DEVICE", device_uuid="REVWSUNFMQ=="):
         self.__sock: Socket
@@ -33,10 +34,11 @@ class Client:
         self.__processingSize = 0
 
         self.packetDict = {}
-        
+
     def postText(self, chatId, li, text, notice=False):
-        httpApi.postText(chatId, li, text, notice, self.__accessKey, self.device_uuid)
-        
+        httpApi.postText(chatId, li, text, notice,
+                         self.__accessKey, self.device_uuid)
+
     async def __recvPacket(self):
         encryptedBuffer = b""
         currentPacketSize = 0
@@ -91,14 +93,14 @@ class Client:
         if packet.PacketID in self.packetDict:
             self.packetDict[packet.PacketID].set_result(packet)
             del self.packetDict[packet.PacketID]
-        
+
         self.loop.create_task(self.onPacket(packet))
-        
+
         if packet.PacketName == "MSG":
-            body=packet.toJsonBody()
-            
+            body = packet.toJsonBody()
+
             chatId = body["chatLog"]["chatId"]
-            
+
             if "li" in body:
                 li = body["li"]
             else:
@@ -108,33 +110,33 @@ class Client:
             chat = Chat(channel, body)
 
             self.loop.create_task(self.onMessage(chat))
-        
+
         if packet.PacketName == "NEWMEM":
-            body=packet.toJsonBody()
-            
+            body = packet.toJsonBody()
+
             chatId = body["chatLog"]["chatId"]
-            
+
             if "li" in body:
                 li = body["li"]
             else:
                 li = 0
-                
+
             channel = Channel(chatId, li, self.__writer)
             self.loop.create_task(self.onJoin(packet, channel))
-            
+
         if packet.PacketName == "DELMEM":
-            body=packet.toJsonBody()
-            
+            body = packet.toJsonBody()
+
             chatId = body["chatLog"]["chatId"]
-            
+
             if "li" in body:
                 li = body["li"]
             else:
                 li = 0
-                
+
             channel = Channel(chatId, li, self.__writer)
             self.loop.create_task(self.onQuit(packet, channel))
-    
+
     async def onPacket(self, packet):
         pass
 
@@ -161,15 +163,14 @@ class Client:
         if r["status"] == -101:
             print("다른곳에 로그인 되있습니다.")
             print("로그인 되있는 PC에서 로그아웃 해주세요")
-            
+
         elif r["status"] == -100:
             print("디바이스 등록이 안 되어 있습니다.")
             print("RegisterDevice.py를 실행해주세요")
-        
+
         if r["status"] != 0:
             self.loop.stop()
             raise Exception(str(r))
-            
 
         self.__accessKey = r["access_token"]
         # print(self.__accessKey)
@@ -183,7 +184,8 @@ class Client:
         self.__StreamReader, self.__StreamWriter = await asyncio.open_connection(checkInData["host"], int(checkInData["port"]))
 
         self.__crypto = cryptoManager.CryptoManager()
-        self.__writer = writer.Writer(self.__crypto, self.__StreamWriter, self.packetDict)
+        self.__writer = writer.Writer(
+            self.__crypto, self.__StreamWriter, self.packetDict)
 
         LoginListPacket = Packet(0, 0, "LOGINLIST", 0, bson.encode({
             "appVer": "3.1.4",
@@ -210,7 +212,6 @@ class Client:
         self.loop.create_task(self.__recvPacket())
         self.loop.create_task(self.__heartbeat())
 
-        
     def run(self, LoginId, LoginPw):
         self.loop = asyncio.get_event_loop()
         self.loop.create_task(self.__login(LoginId, LoginPw))

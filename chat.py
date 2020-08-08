@@ -8,6 +8,7 @@ import httpApi
 import hashlib
 import requests
 
+
 class Chat:
     def __init__(self, channel, body):
         self.channel = channel
@@ -23,15 +24,16 @@ class Chat:
         self.msgId = self.rawBody["chatLog"]["msgId"]
 
         self.authorId = self.rawBody["chatLog"]["authorId"]
-       
+
         try:
             if "attachment" in self.rawBody["chatLog"]:
-                self.attachment = json.loads(self.rawBody["chatLog"]["attachment"])
+                self.attachment = json.loads(
+                    self.rawBody["chatLog"]["attachment"])
             else:
                 self.attachment = {}
         except:
             pass
-        
+
         self.nickName = self.rawBody["authorNickname"]
 
         ########## NOT WORKING ##########
@@ -133,7 +135,7 @@ class Chat:
 
     async def sendPhoto(self, data, w, h):
         path, key, url = httpApi.upload(data, "image/jpeg", self.authorId)
-        return await self.channel.sendChat("", json.dumps({
+        return await self.channel.forwardChat("", json.dumps({
             "thumbnailUrl": url,
             "thumbnailHeight": w,
             "thumbnailWidth": h,
@@ -147,21 +149,20 @@ class Chat:
         }), 2)
 
     async def sendPhotoPath(self, path, w, h):
-        f=open(path, "rb")
-        data=f.read()
+        f = open(path, "rb")
+        data = f.read()
         f.close()
 
         return await self.sendPhoto(data, w, h)
 
     async def sendPhotoUrl(self, url, w, h):
-        r=requests.get(url)
+        r = requests.get(url)
         r.raise_for_status()
 
         return await self.sendPhoto(r.content, w, h)
 
     async def sendLongText(self, title, content):
-        path, key, url = httpApi.upload(content.encode("utf-8"), "image/jpeg", self.authorId)
+        path, key, url = httpApi.upload(
+            content.encode("utf-8"), "image/jpeg", self.authorId)
 
-        return await self.channel.forwardChat(title, json.dumps({"path":path, "k":key, "s":len(content), "cs":hashlib.sha1(content.encode("utf-8")).hexdigest().upper(), "sd":True}), 1)
-
-
+        return await self.channel.forwardChat(title, json.dumps({"path": path, "k": key, "s": len(content), "cs": "", "sd": True}), 1)

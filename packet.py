@@ -4,6 +4,7 @@ import os
 import io
 import struct
 
+
 class Packet:
     def __init__(self, PacketID=0, StatusCode=0, PacketName="", BodyType=0, Body=b""):
         self.PacketID = PacketID
@@ -25,10 +26,10 @@ class Packet:
         f.write(b"\x00"*(11-len(self.PacketName)))
         f.write(struct.pack("<b", self.BodyType))
         f.write(struct.pack("<i", len(self.Body)))
-        
+
         f.write(self.Body)
         return f.getvalue()
-        
+
     def readLocoPacket(self, packet):
         self.PacketID = struct.unpack("<I", packet[:4])[0]
         self.StatusCode = struct.unpack("<H", packet[4:6])[0]
@@ -36,7 +37,6 @@ class Packet:
         self.BodyType = struct.unpack("<b", packet[17:18])[0]
         self.BodySize = struct.unpack("<i", packet[18:22])[0]
         self.Body = packet[22:]
-        
 
     def toEncryptedLocoPacket(self, crypto):
         iv = os.urandom(16)
@@ -50,12 +50,12 @@ class Packet:
         return f.getvalue()
 
     def readEncryptedLocoPacket(self, packet, crypto):
-        packetLen=struct.unpack(">I",packet[0:4])[0]
-        iv=packet[4:20]
-        data=packet[20:packetLen-16]
+        packetLen = struct.unpack(">I", packet[0:4])[0]
+        iv = packet[4:20]
+        data = packet[20:packetLen-16]
 
-        dec=crypto.aesDecrypt(data, iv)
-        
+        dec = crypto.aesDecrypt(data, iv)
+
         try:
             self.readLocoPacket(dec)
         except Exception as e:
