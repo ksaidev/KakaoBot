@@ -120,7 +120,7 @@ class Client:
                 li = 0
                 
             channel = Channel(chatId, li, self.__writer)
-            self.loop.create_task(self.onJoin(channel))
+            self.loop.create_task(self.onJoin(packet, channel))
             
         if packet.PacketName == "DELMEM":
             body=packet.toJsonBody()
@@ -133,7 +133,7 @@ class Client:
                 li = 0
                 
             channel = Channel(chatId, li, self.__writer)
-            self.loop.create_task(self.onQuit(channel))
+            self.loop.create_task(self.onQuit(packet, channel))
     
     async def onPacket(self, packet):
         pass
@@ -141,10 +141,10 @@ class Client:
     async def onMessage(self, chat):
         pass
 
-    async def onJoin(self, channel):
+    async def onJoin(self, packet, channel):
         pass
 
-    async def onQuit(self, channel):
+    async def onQuit(self, packet, channel):
         pass
 
     async def __heartbeat(self):
