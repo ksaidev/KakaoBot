@@ -40,7 +40,7 @@ class Channel:
 
     async def hideMessage(self, logId, t):
         if self.li:
-            await (self.writer.sendPacket(packet.Packet(0, 0, "REWRITE", 0, bson.encode({
+            return (await self.writer.sendPacket(packet.Packet(0, 0, "REWRITE", 0, bson.encode({
                 "c": self.chatId,
                 "li": self.li,
                 "logId": logId,
