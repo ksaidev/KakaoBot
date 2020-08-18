@@ -136,7 +136,7 @@ class Client:
         if packet.PacketName == "DECUNREAD":
             chatId = body["chatId"]
 
-            channel = Channel(chatId, 0, self.__writer__)
+            channel = Channel(chatId, 0, self.__writer)
             self.loop.create_task(self.onRead(channel, body))
 
     async def onPacket(self, packet):
