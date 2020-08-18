@@ -95,10 +95,10 @@ class Client:
             del self.packetDict[packet.PacketID]
 
         self.loop.create_task(self.onPacket(packet))
+        
+        body=packet.toJsonBody()
 
         if packet.PacketName == "MSG":
-            body = packet.toJsonBody()
-
             chatId = body["chatLog"]["chatId"]
 
             if "li" in body:
@@ -112,8 +112,6 @@ class Client:
             self.loop.create_task(self.onMessage(chat))
 
         if packet.PacketName == "NEWMEM":
-            body = packet.toJsonBody()
-
             chatId = body["chatLog"]["chatId"]
 
             if "li" in body:
@@ -125,8 +123,6 @@ class Client:
             self.loop.create_task(self.onJoin(packet, channel))
 
         if packet.PacketName == "DELMEM":
-            body = packet.toJsonBody()
-
             chatId = body["chatLog"]["chatId"]
 
             if "li" in body:
@@ -136,6 +132,12 @@ class Client:
 
             channel = Channel(chatId, li, self.__writer)
             self.loop.create_task(self.onQuit(packet, channel))
+        
+        if packet.PacketName == "DECUNREAD":
+            chatId = body["chatId"]
+
+            channel = Channel(chatId, 0, self.__writer__)
+            self.loop.create_task(self.onRead(channel, body))
 
     async def onPacket(self, packet):
         pass
@@ -147,6 +149,9 @@ class Client:
         pass
 
     async def onQuit(self, packet, channel):
+        pass
+    
+    async def onRead(self, channel, packet):
         pass
 
     async def __heartbeat(self):
