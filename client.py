@@ -30,7 +30,6 @@ class Client:
         self.__packetID = 0
 
         self.__processingBuffer = b""
-        self.__processingHeader = b""
         self.__processingSize = 0
 
         self.packetDict = {}
@@ -73,12 +72,11 @@ class Client:
 
         self.__processingBuffer += self.__crypto.aesDecrypt(BODY, IV)
 
-        if not self.__processingHeader and len(self.__processingBuffer) >= 22:
-            self.__processingHeader = self.__processingBuffer[0:22]
+        if not self.__processingSize and len(self.__processingBuffer) >= 22:
             self.__processingSize = struct.unpack(
-                "<i", self.__processingHeader[18:22])[0] + 22
+                "<I", self.__processingBuffer[18:22])[0] + 22
 
-        if self.__processingHeader:
+        if self.__processingSize:
             if len(self.__processingBuffer) >= self.__processingSize:
                 p = Packet()
                 p.readLocoPacket(
@@ -87,7 +85,6 @@ class Client:
                 self.loop.create_task(self.__onPacket(p))
 
                 self.__processingBuffer = self.__processingBuffer[self.__processingSize:]
-                self.__processingHeader = b""
 
     async def __onPacket(self, packet):
         if packet.PacketID in self.packetDict:
