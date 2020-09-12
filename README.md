@@ -1,3 +1,5 @@
+# made by Nua07
+
 # kakaoPy
 
 # 허락 받지 않은 2차 공유를 금지합니다
