@@ -1,4 +1,4 @@
-# made by Nua07
+# made by Nua07 (https://github.com/Nua07)
 
 # kakaoPy
 
