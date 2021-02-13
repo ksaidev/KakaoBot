@@ -9,6 +9,8 @@ user_uuid = "REVWSUNFMQ=="
 httpApi.RequestPasscode(user_id, user_pw,
                         device_name, user_uuid)
 
+print("Please check your phone or computer for the authorization passcode")
+
 passcode = str(input("Input Passcode : "))
 
 httpApi.RegisterDevice(user_id, user_pw,
