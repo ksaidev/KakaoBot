@@ -158,21 +158,18 @@ class Client:
     async def __heartbeat(self):
         while True:
             await asyncio.sleep(180)
-            PingPacket = Packet(0, 0,
-                                "PING", 0, bson.encode({}))
+            PingPacket = Packet(0, 0, "PING", 0, bson.encode({}))
             self.loop.create_task(self.__writer.sendPacket(PingPacket))
 
     async def __login(self, LoginId, LoginPw,):
-        r = json.loads(httpApi.Login(
-            LoginId, LoginPw, self.device_name, self.device_uuid))
+        r = json.loads(httpApi.Login(LoginId, LoginPw,
+                                     self.device_name, self.device_uuid))
 
         if r["status"] == -101:
-            print("다른곳에 로그인 되있습니다.")
-            print("로그인 되있는 PC에서 로그아웃 해주세요")
+            print("이전에 로그인이 되어있는 PC에서 로그아웃 해주세요")
 
         elif r["status"] == -100:
-            print("디바이스 등록이 안 되어 있습니다.")
-            print("RegisterDevice.py를 실행해주세요")
+            print("디바이스 등록이 되어 있지 않으니 RegisterDevice.py를 실행해주세요")
 
         if r["status"] != 0:
             self.loop.stop()

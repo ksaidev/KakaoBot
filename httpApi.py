@@ -62,9 +62,9 @@ def Header(email, device_uuid):
 
 
 def getXVC(email, device_uuid, isFull=False):
-    hash = hashlib.sha512(
-        f"HEATH|{AuthUserAgent}|DEMIAN|{email}|{device_uuid}".encode("utf-8")).hexdigest()
-    if(isFull):
+    string = f"HEATH|{AuthUserAgent}|DEMIAN|{email}|{device_uuid}".encode("utf-8")
+    hash = hashlib.sha512(string).hexdigest()
+    if isFull:
         return hash
     return hash[0:16]
 
@@ -86,9 +86,7 @@ def upload(data, dataType, userId):
                             "user_id": userId, },
                       files={'attachment': data, })
     path = r.content.decode()
-
     key = path.replace('/talkm', "")
-
     url = "https://dn-m.talk.kakao.com"+path
 
     return path, key, url

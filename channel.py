@@ -10,7 +10,7 @@ class Channel:
         self.li = li
         self.writer = writer
 
-    async def sendPacket(self, command, data):
+    async def __sendPacket(self, command, data):
         packet = packet.Packet(0, 0, command, 0, bson.encode(data))
         return (await self.writer.sendPacket(packet)).toJsonBody()
 
@@ -23,7 +23,7 @@ class Channel:
             "msg": str(msg),
             "noSeen": False,
         }
-        return await self.sendPacket("WRITE", data)
+        return await self.__sendPacket("WRITE", data)
 
     async def sendText(self, msg):
         return await self.sendChat(msg, "{}", 1)
@@ -37,11 +37,11 @@ class Channel:
             "msg": str(msg),
             "noSeen": False,
         }
-        return await self.sendPacket("FORWARD", data)
+        return await self.__sendPacket("FORWARD", data)
 
     async def deleteMessage(self, logId):
         data = {"chatId": self.chatId, "logId": logId}
-        return await self.sendPacket("DELETEMSG", data)
+        return await self.__sendPacket("DELETEMSG", data)
 
     async def hideMessage(self, logId, t):
         if self.li:
@@ -51,7 +51,7 @@ class Channel:
                 "logId": logId,
                 "t": t
             }
-            return await self.sendPacket("REWRITE", data)
+            return await self.__sendPacket("REWRITE", data)
 
     async def kickMember(self, mid):
         if self.li:
@@ -60,7 +60,7 @@ class Channel:
                 "c": self.chatId,
                 "mid": mid,
             }
-            await self.sendPacket("KICKMEM", data)
+            await self.__sendPacket("KICKMEM", data)
 
     async def setMeta(self, t, content):
         data = {
@@ -68,13 +68,13 @@ class Channel:
             "type": t,
             "content": content
         }
-        return await self.sendPacket("SETMETA", data)
+        return await self.__sendPacket("SETMETA", data)
 
     async def getLinkInfo(self):
-        return await self.sendPacket("INFOLINK", {"lis": [self.li]})
+        return await self.__sendPacket("INFOLINK", {"lis": [self.li]})
 
     async def getChatInfo(self):
-        return await self.sendPacket("CHATINFO", {"chatId": self.chatId})
+        return await self.__sendPacket("CHATINFO", {"chatId": self.chatId})
 
     async def getUserInfo(self, userId):
-        return await self.sendPacket("MEMBER", {"chatId": self.chatId, "memberIds": [userId]})
+        return await self.__sendPacket("MEMBER", {"chatId": self.chatId, "memberIds": [userId]})

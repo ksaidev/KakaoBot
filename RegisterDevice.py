@@ -2,7 +2,6 @@ import httpApi
 
 user_id = str(input("ID: "))
 user_pw = str(input("PW: "))
-
 device_name = "DEVICE"
 user_uuid = "REVWSUNFMQ=="  # TODO what's the meaning?
 
