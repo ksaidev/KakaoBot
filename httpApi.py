@@ -1,23 +1,21 @@
-import requests
-import hashlib
 import json
 
-Agent = "win32"
-Lang = "ko"
-Version = "3.1.1"
-AppVersion = "3.1.1.2441"
-OsVersion = "10.0"
+import requests
+import hashlib
 
-AuthHeader = "{agent}/{version}/{lang}".format(
-    agent=Agent, version=Version, lang=Lang)
-AuthUserAgent = "KT/{version} Wd/{osVer} {lang}".format(
-    version=Version, osVer=OsVersion, lang=Lang)
+agent = "win32"
+lang = "ko"
+version = "3.1.1"
+appVersion = "3.1.1.2441"
+osVersion = "10.0"
+
+AuthHeader = f"{agent}/{version}/{lang}"
+AuthUserAgent = f"KT/{version} Wd/{osVersion} {lang}"
 
 LoginUrl = "https://ac-sb-talk.kakao.com/win32/account/login.json"
 RegisterDeviceUrl = "https://ac-sb-talk.kakao.com/win32/account/register_device.json"
 RequestPasscodeUrl = "https://ac-sb-talk.kakao.com/win32/account/request_passcode.json"
-MoreSettingUrl = "https://sb-talk.kakao.com/win32/account/more_settings.json?since={since}&lang={lang}".format(
-    since=0, lang=Lang)
+MoreSettingUrl = f"https://sb-talk.kakao.com/win32/account/more_settings.json?since={0}&lang={lang}"
 
 MediaUrl = "https://up-m.talk.kakao.com/upload"
 
@@ -99,22 +97,21 @@ def upload(data, dataType, userId):
 
     key = path.replace('/talkm', "")
 
-    url = "https://dn-m.talk.kakao.com{}".format(path)
+    url = "https://dn-m.talk.kakao.com"+path
 
     return path, key, url
 
 
 def postText(chatId, li, text, notice, accessKey, deviceUUID):
     if li == 0:
-        url = "https://talkmoim-api.kakao.com/chats/{}/posts".format(chatId)
+        url = f"https://talkmoim-api.kakao.com/chats/{chatId}/posts"
     else:
-        url = "https://open.kakao.com/moim/chats/{}/posts?link_id={}".format(
-            chatId, li)
+        url = f"https://open.kakao.com/moim/chats/{chatId}/posts?link_id={li}"
     print(requests.post(url,
                         headers={
                             "A": AuthHeader,
                             "User-Agent": AuthUserAgent,
-                            "Authorization": "{}-{}".format(accessKey, deviceUUID),
+                            "Authorization": f"{accessKey}-{deviceUUID}",
                             "Accept-Language": "ko"
                         }, data={
                             "content": json.dumps([{"text": text, "type": "text"}]),
@@ -124,8 +121,7 @@ def postText(chatId, li, text, notice, accessKey, deviceUUID):
 
 
 def getXVC(email, device_uuid, isFull=False):
-    hash = hashlib.sha512("HEATH|{}|DEMIAN|{}|{}".format(
-        AuthUserAgent, email, device_uuid).encode("utf-8")).hexdigest()
+    hash = hashlib.sha512(f"HEATH|{AuthUserAgent}|DEMIAN|{email}|{device_uuid}".encode("utf-8")).hexdigest()
     if(isFull):
         return hash
     return hash[0:16]

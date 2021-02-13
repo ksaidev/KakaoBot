@@ -1,18 +1,19 @@
+import json
+import time
 from socket import socket
+import asyncio
+import struct
 
 import booking
 import checkIn
-import asyncio
 import cryptoManager
-import time
-from packet import Packet
-from bson import BSON as bson
 import httpApi
-import json
-import struct
 import writer
 from chat import Chat
 from channel import Channel
+
+from packet import Packet
+from bson import BSON as bson
 
 
 class Client:

@@ -3,7 +3,6 @@ from Crypto.Hash import SHA1
 from Crypto.PublicKey import RSA
 from Crypto.PublicKey.RSA import construct
 from Crypto.Signature import pss
-
 import os
 import io
 import struct

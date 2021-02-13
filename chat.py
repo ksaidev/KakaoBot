@@ -1,28 +1,24 @@
 import asyncio
-import packet
-from bson import BSON as bson
 import time
 import json
 import os
+
 import httpApi
+
 import hashlib
 import requests
+import packet
+from bson import BSON as bson
 
 
 class Chat:
     def __init__(self, channel, body):
         self.channel = channel
-
         self.rawBody = body
-
         self.logId = self.rawBody["chatLog"]["logId"]
-
         self.type = self.rawBody["chatLog"]["type"]
-
         self.message = self.rawBody["chatLog"]["message"]
-
         self.msgId = self.rawBody["chatLog"]["msgId"]
-
         self.authorId = self.rawBody["chatLog"]["authorId"]
 
         try:
@@ -34,9 +30,8 @@ class Chat:
         except:
             pass
 
-#       self.nickName = self.rawBody["authorNickname"] 현재 작동이 멈춘관계로 authorId로 대채
-
-        self.nickName = self.rawBody["chatLog"]["authorId"]
+        # authorNickname이 작동하지 않는 관계로 authorId로 대채
+        self.nickName = self.authorId
 
     async def reply(self, msg, t=1):
         return await self.channel.sendChat(msg, json.dumps({
@@ -82,9 +77,8 @@ class Chat:
         }), 2)
 
     async def sendPhotoPath(self, path, w, h):
-        f = open(path, "rb")
-        data = f.read()
-        f.close()
+        with open(path, "rb") as f:
+            data = f.read()
 
         return await self.sendPhoto(data, w, h)
 

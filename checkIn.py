@@ -1,9 +1,11 @@
 from socket import socket
-import cryptoManager
-import packet
 import io
-from bson import BSON as bson
 import struct
+
+import cryptoManager
+
+import packet
+from bson import BSON as bson
 
 
 def getCheckInData(host: str, port: int):

@@ -1,8 +1,10 @@
-from bson import BSON as bson
-import cryptoManager
 import os
 import io
 import struct
+
+import cryptoManager
+
+from bson import BSON as bson
 
 
 class Packet:

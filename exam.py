@@ -1,8 +1,11 @@
-import client
-from packet import Packet
-import bson
 import time
 import json
+
+import client
+
+from packet import Packet
+import bson
+
 
 class MyClass(client.Client):
     """

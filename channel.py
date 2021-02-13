@@ -1,6 +1,7 @@
-import bson
-import packet
 import time
+
+import packet
+import bson
 
 
 class Channel:
