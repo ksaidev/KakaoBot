@@ -96,8 +96,8 @@ class Client:
             del self.packetDict[packet.PacketID]
 
         self.loop.create_task(self.onPacket(packet))
-        
-        body=packet.toJsonBody()
+
+        body = packet.toJsonBody()
 
         if packet.PacketName == "MSG":
             chatId = body["chatLog"]["chatId"]
@@ -133,7 +133,7 @@ class Client:
 
             channel = Channel(chatId, li, self.__writer)
             self.loop.create_task(self.onQuit(packet, channel))
-        
+
         if packet.PacketName == "DECUNREAD":
             chatId = body["chatId"]
 
@@ -151,7 +151,7 @@ class Client:
 
     async def onQuit(self, packet, channel):
         pass
-    
+
     async def onRead(self, channel, packet):
         pass
 
