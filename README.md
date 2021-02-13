@@ -4,7 +4,7 @@
 dependency
 
     pip install pymongo
-    install pycryptodome
+    pip install pycryptodome
 
 
 
