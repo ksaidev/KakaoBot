@@ -34,8 +34,9 @@ class Chat:
         except:
             pass
 
-        self.nickName = self.rawBody["authorNickname"]
+#       self.nickName = self.rawBody["authorNickname"] 현재 작동이 멈춘관계로 authorId로 대채
 
+        self.nickName = self.rawBody["chatLog"]["authorId"]
         ########## NOT WORKING ##########
         """
     async def __uploadPicture(self, path, w, h):
