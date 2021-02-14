@@ -32,4 +32,7 @@ class MyClass(client.Client):
             await chat.hide()
 
 client = MyClass("DEVICE NAME")
-client.run("id", "pw")
+
+user_id = str(input("ID: "))
+user_pw = str(input("PW: "))
+client.run(user_id, user_pw)

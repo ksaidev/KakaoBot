@@ -14,7 +14,7 @@ pip install -r requirements.txt
 
 ## Formatter
 
-Recommend formatter : autopep ( pip install autopep) (VSC에서)
+Recommend formatter : autopep 
 
 ## Library
 Standard library

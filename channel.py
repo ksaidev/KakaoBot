@@ -1,6 +1,6 @@
 import time
 
-import packet
+from packet import Packet
 import bson
 
 
@@ -11,7 +11,7 @@ class Channel:
         self.writer = writer
 
     async def __sendPacket(self, command, data):
-        packet = packet.Packet(0, 0, command, 0, bson.encode(data))
+        packet = Packet(0, 0, command, 0, bson.encode(data))
         return (await self.writer.sendPacket(packet)).toJsonBody()
 
     async def sendChat(self, msg, extra, t):
