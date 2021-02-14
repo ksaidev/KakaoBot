@@ -17,7 +17,7 @@ from bson import BSON as bson
 
 
 class Client:
-    def __init__(self, device_name="DEVICE", device_uuid="REVWSUNFMQ=="):
+    def __init__(self, device_name, device_uuid):
         self.__sock: Socket
         self.__StreamReader: asyncio.StreamReader
         self.__StreamWriter: asyncio.StreamWriter

@@ -113,6 +113,9 @@ venv.bak/
 # VSC project settings
 .vscode
 
+# PyCharm project settings
+.idea
+
 # Spyder project settings
 .spyderproject
 .spyproject
