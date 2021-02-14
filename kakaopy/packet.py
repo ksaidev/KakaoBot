@@ -2,8 +2,6 @@ import os
 import io
 import struct
 
-import cryptoManager
-
 from bson import BSON as bson
 
 

@@ -1,7 +1,8 @@
 import socket
 import ssl
 
-import packet
+from .packet import Packet
+
 import bson
 
 
@@ -13,11 +14,11 @@ def getBookingData():
         with context.wrap_socket(sock, server_hostname=hostname) as ssock:
             data = bson.BSON.encode({'os': "win32", "model": "", "MCCMNC": ""})
 
-            b = packet.Packet(1000, 0, "GETCONF", 0, data)
+            b = Packet(1000, 0, "GETCONF", 0, data)
             ssock.write(b.toLocoPacket())
 
             data = ssock.recv(4096)
 
-            recvPacket = packet.Packet()
+            recvPacket = Packet()
             recvPacket.readLocoPacket(data)
             return recvPacket

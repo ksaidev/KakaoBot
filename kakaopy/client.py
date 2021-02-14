@@ -4,15 +4,15 @@ from socket import socket
 import asyncio
 import struct
 
-import booking
-import checkIn
-import cryptoManager
-import httpApi
-import writer
-from chat import Chat
-from channel import Channel
+from .booking import getBookingData
+from .checkIn import getCheckInData
+from .cryptoManager import CryptoManager
+from .httpApi import postText, Login
+from .writer import Writer
+from .chat import Chat
+from .channel import Channel
+from .packet import Packet
 
-from packet import Packet
 from bson import BSON as bson
 
 
@@ -21,8 +21,8 @@ class Client:
         self.__sock: Socket
         self.__StreamReader: asyncio.StreamReader
         self.__StreamWriter: asyncio.StreamWriter
-        self.__crypto: cryptoManager.CryptoManager
-        self.__writer: writer.Writer
+        self.__crypto: CryptoManager
+        self.__writer: Writer
         self.__accessKey: str
 
         self.device_name = device_name
@@ -37,8 +37,8 @@ class Client:
         self.packetDict = {}
 
     def postText(self, chatId, li, text, notice=False):
-        httpApi.postText(chatId, li, text, notice,
-                         self.__accessKey, self.device_uuid)
+        postText(chatId, li, text, notice,
+                 self.__accessKey, self.device_uuid)
 
     async def __recvPacket(self):
         encryptedBuffer = b""
@@ -162,14 +162,17 @@ class Client:
             self.loop.create_task(self.__writer.sendPacket(PingPacket))
 
     async def __login(self, LoginId, LoginPw,):
-        r = json.loads(httpApi.Login(LoginId, LoginPw,
-                                     self.device_name, self.device_uuid))
+        r = json.loads(Login(LoginId, LoginPw,
+                             self.device_name, self.device_uuid))
 
         if r["status"] == -101:
             print("이전에 로그인이 되어있는 PC에서 로그아웃 해주세요")
 
         elif r["status"] == -100:
-            print("디바이스 등록이 되어 있지 않으니 RegisterDevice.py를 실행해주세요")
+            print("디바이스 등록이 되어 있지 않습니다")
+
+        elif r["status"] == 12:
+            print("카카오계정 또는 비밀번호를 다시 확인해 주세요")
 
         if r["status"] != 0:
             self.loop.stop()
@@ -178,16 +181,16 @@ class Client:
         self.__accessKey = r["access_token"]
         # print(self.__accessKey)
 
-        bookingData = booking.getBookingData().toJsonBody()
+        bookingData = getBookingData().toJsonBody()
 
-        checkInData = checkIn.getCheckInData(
+        checkInData = getCheckInData(
             bookingData["ticket"]["lsl"][0],
             bookingData["wifi"]["ports"][0]).toJsonBody()
 
         self.__StreamReader, self.__StreamWriter = await asyncio.open_connection(checkInData["host"], int(checkInData["port"]))
 
-        self.__crypto = cryptoManager.CryptoManager()
-        self.__writer = writer.Writer(
+        self.__crypto = CryptoManager()
+        self.__writer = Writer(
             self.__crypto, self.__StreamWriter, self.packetDict)
 
         LoginListPacket = Packet(0, 0, "LOGINLIST", 0, bson.encode({

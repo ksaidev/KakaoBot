@@ -2,14 +2,14 @@ from socket import socket
 import io
 import struct
 
-import cryptoManager
+from .cryptoManager import CryptoManager
+from .packet import Packet
 
-import packet
 from bson import BSON as bson
 
 
 def getCheckInData(host: str, port: int):
-    crypto = cryptoManager.CryptoManager()
+    crypto = CryptoManager()
 
     sock = socket()
     sock.connect((host, port))
@@ -17,7 +17,7 @@ def getCheckInData(host: str, port: int):
     handshakePacket = crypto.getHandshakePacket()
     sock.send(handshakePacket)
 
-    p = packet.Packet(1, 0, "CHECKIN", 0, bson.encode({
+    p = Packet(1, 0, "CHECKIN", 0, bson.encode({
         "userId": 0,
         "os": "win32",
         "ntype": 0,
@@ -30,7 +30,7 @@ def getCheckInData(host: str, port: int):
 
     data = sock.recv(2048)
 
-    recvPacket = packet.Packet()
+    recvPacket = Packet()
     recvPacket.readEncryptedLocoPacket(data, crypto)
 
     return recvPacket

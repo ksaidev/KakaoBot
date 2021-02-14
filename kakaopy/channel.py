@@ -1,6 +1,7 @@
 import time
 
-from packet import Packet
+from .packet import Packet
+
 import bson
 
 

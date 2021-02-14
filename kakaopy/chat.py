@@ -3,11 +3,10 @@ import time
 import json
 import os
 
-import httpApi
+from .httpApi import upload
 
 import hashlib
 import requests
-import packet
 from bson import BSON as bson
 
 
@@ -62,7 +61,7 @@ class Chat:
         return await self.channel.kickMember(self.authorId)
 
     async def sendPhoto(self, data, w, h):
-        path, key, url = httpApi.upload(data, "image/jpeg", self.authorId)
+        path, key, url = upload(data, "image/jpeg", self.authorId)
         return await self.channel.forwardChat("", json.dumps({
             "thumbnailUrl": url,
             "thumbnailHeight": w,
@@ -89,7 +88,7 @@ class Chat:
         return await self.sendPhoto(r.content, w, h)
 
     async def sendLongText(self, title, content):
-        path, key, url = httpApi.upload(
-            content.encode("utf-8"), "image/jpeg", self.authorId)
+        path, key, url = upload(content.encode(
+            "utf-8"), "image/jpeg", self.authorId)
 
         return await self.channel.forwardChat(title, json.dumps({"path": path, "k": key, "s": len(content), "cs": "", "sd": True}), 1)
