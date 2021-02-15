@@ -1,4 +1,4 @@
-# kakaoPy
+# KakaoBot
 카카오톡을 파이썬으로 구현한 라이브러리
 
 ## Setup
