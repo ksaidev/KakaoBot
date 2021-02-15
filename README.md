@@ -1,5 +1,5 @@
 # KakaoBot
-카카오톡을 파이썬으로 구현한 라이브러리
+간단하게 요약하자면 https://github.com/pl-Steve28-lq/KakaoLink-For-Python + https://github.com/taejun281/kakaoPy + 알파
 
 ## Setup
 pip install -r requirements.txt
