@@ -13,7 +13,7 @@ pip install -r requirements.txt
 
 ## Formatter
 
-Recommend formatter : autopep 
+Recommend formatter : autopep 아니 이거는 아무 상관 없는거자나
 
 ## Library
 Standard library
