@@ -22,6 +22,8 @@ External
 
 ## 사용 예시
 
+자세한 사용예시는 위키를 살펴봐 주세요
+
     if chat.message == ".삭제":
         await chat.deletemy(chat.attachment['src_logId'])
 
