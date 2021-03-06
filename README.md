@@ -1,4 +1,4 @@
-## 이 레포는 법적 문제가 생길 수 있다고 판단되어 private으로 바꾸었습니다. 사용하시는건 자유지만, 카카오에 의한 제재가 가해질 수 있습니다
+## 사용하시는건 자유지만, 카카오에 의한 제재가 가해질 수 있습니다
 
 # KakaoBot
 간단하게 요약하자면 https://github.com/pl-Steve28-lq/KakaoLink-For-Python + https://github.com/taejun281/kakaoPy + 알파
