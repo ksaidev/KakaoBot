@@ -8,7 +8,7 @@ def main():
     device_name = "any string"
     user_uuid = 'REVWSUNFMQ=='  # TODO 되는 경우에 대한 규칙성 필요 => randomize 바꾸지 않는게 좋을 듯
     
-    if check_registered == n:
+    if check_registered == 'n':
         RequestPasscode(user_id, user_pw, device_name, user_uuid)
 
         print("Please check your phone or computer for the authorization passcode")
