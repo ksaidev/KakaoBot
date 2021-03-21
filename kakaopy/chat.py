@@ -1,13 +1,9 @@
-import asyncio
-import time
 import json
-import os
 
 from .httpApi import upload
 
 import hashlib
 import requests
-from bson import BSON as bson
 
 
 class Chat:

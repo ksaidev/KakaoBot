@@ -1,8 +1,7 @@
 import json
-import time
-from socket import socket
 import asyncio
 import struct
+from socket import socket
 
 from .booking import getBookingData
 from .checkIn import getCheckInData
@@ -13,12 +12,12 @@ from .chat import Chat
 from .channel import Channel
 from .packet import Packet
 
-from bson import BSON as bson
+import bson
 
 
 class Client:
     def __init__(self, device_name, device_uuid):
-        self.__sock: Socket
+        self.__sock: socket
         self.__StreamReader: asyncio.StreamReader
         self.__StreamWriter: asyncio.StreamWriter
         self.__crypto: CryptoManager

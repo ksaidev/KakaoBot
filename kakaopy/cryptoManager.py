@@ -3,11 +3,10 @@ import io
 import struct
 
 
-from Crypto.Cipher import AES, PKCS1_OAEP
-from Crypto.Hash import SHA1
-from Crypto.PublicKey import RSA
-from Crypto.PublicKey.RSA import construct
-from Crypto.Signature import pss
+from Cryptodome.Cipher import AES, PKCS1_OAEP
+from Cryptodome.Hash import SHA1
+from Cryptodome.PublicKey.RSA import construct
+from Cryptodome.Signature import pss
 
 
 class CryptoManager:

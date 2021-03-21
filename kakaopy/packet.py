@@ -2,7 +2,7 @@ import os
 import io
 import struct
 
-from bson import BSON as bson
+import bson
 
 
 class Packet:
