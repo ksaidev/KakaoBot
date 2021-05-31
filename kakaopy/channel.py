@@ -39,6 +39,10 @@ class Channel:
         }
         return await self.__send_packet("FORWARD", data)
 
+    async def read_message(self, log_id):
+        data = {"chatId": self.chat_id, "logId": log_id}
+        return await self.__send_packet("NOTIREAD", data)
+
     async def delete_message(self, log_id):
         data = {"chatId": self.chat_id, "logId": log_id}
         return await self.__send_packet("DELETEMSG", data)

@@ -41,6 +41,9 @@ class Chat:
     async def send_text(self, msg):
         return await self.channel.send_text(msg)
 
+    async def read(self):
+        return await self.channel.read_message(self.log_id)
+
     async def delete(self):
         return await self.channel.delete_message(self.log_id)
 
