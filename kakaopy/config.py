@@ -1,0 +1,9 @@
+APP_VERSION = "3.2.7"
+OS_VERSION = "10.0"
+AGENT = "win32"
+LANG = "ko"
+PRT_VERSION = "1"
+
+DTYPE = 1
+NTYPE = 0
+MCCMNC = "999"

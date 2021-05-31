@@ -6,6 +6,7 @@ from .writer import Writer
 from .chat import Chat
 from .channel import Channel
 from .packet import Packet
+from .config import APP_VERSION, AGENT, LANG, PRT_VERSION, DTYPE, NTYPE, MCCMNC
 
 
 import json
@@ -34,7 +35,7 @@ class Client:
         self.__processing_size = 0
 
         self.packetDict = {}
-        self.loop = None
+        self.loop = asyncio.get_event_loop()
 
     def post_text(self, chat_id, li, text, notice=False):
         post_text(chat_id, li, text, notice,
@@ -195,15 +196,15 @@ class Client:
             self.__crypto, self.__stream_writer, self.packetDict)
 
         LoginListPacket = Packet(0, 0, "LOGINLIST", 0, bson.encode({
-            "appVer": "3.2.7",
-            "prtVer": "1",
-            "os": "win32",
-            "lang": "ko",
+            "appVer": APP_VERSION,
+            "prtVer": PRT_VERSION,
+            "os": AGENT,
+            "lang": LANG,
             "duuid": self.device_uuid,
             "oauthToken": self.__access_key,
-            "dtype": 1,
-            "ntype": 0,
-            "MCCMNC": "999",
+            "dtype": DTYPE,
+            "ntype": NTYPE,
+            "MCCMNC": MCCMNC,
             "revision": 0,
             "chatIds": [],
             "maxIds": [],
@@ -220,6 +221,5 @@ class Client:
         self.loop.create_task(self.__heartbeat())
 
     def run(self, login_id, login_pw):
-        self.loop = asyncio.get_event_loop()
         self.loop.create_task(self.__login(login_id, login_pw))
         self.loop.run_forever()
