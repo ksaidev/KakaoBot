@@ -2,9 +2,9 @@ __all__ = [
     'booking',
     'channel',
     'chat',
-    'checkIn',
+    'check_in',
     'client',
-    'cryptoManager',
-    'httpApi',
+    'crypto_manager',
+    'http_api',
     'packet',
     'writer']
