@@ -1,19 +1,19 @@
 from socket import socket
 
-from .cryptoManager import CryptoManager
+from .crypto_manager import CryptoManager
 from .packet import Packet
 
 import bson
 
 
-def getCheckInData(host: str, port: int):
+def get_check_in_data(host: str, port: int):
     crypto = CryptoManager()
 
     sock = socket()
     sock.connect((host, port))
 
-    handshakePacket = crypto.getHandshakePacket()
-    sock.send(handshakePacket)
+    handshake_packet = crypto.get_handshake_packet()
+    sock.send(handshake_packet)
 
     p = Packet(1, 0, "CHECKIN", 0, bson.encode({
         "userId": 0,
@@ -24,11 +24,11 @@ def getCheckInData(host: str, port: int):
         "lang": "ko",
     }))
 
-    sock.send(p.toEncryptedLocoPacket(crypto))
+    sock.send(p.to_encrypted_loco_packet(crypto))
 
     data = sock.recv(2048)
 
-    recvPacket = Packet()
-    recvPacket.readEncryptedLocoPacket(data, crypto)
+    recv_packet = Packet()
+    recv_packet.read_encrypted_loco_packet(data, crypto)
 
-    return recvPacket
+    return recv_packet
