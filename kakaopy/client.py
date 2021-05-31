@@ -1,104 +1,105 @@
-import json
-import asyncio
-import struct
-from socket import socket
-
-from .booking import getBookingData
-from .checkIn import getCheckInData
-from .cryptoManager import CryptoManager
-from .httpApi import postText, Login
+from .booking import get_booking_data
+from .check_in import get_check_in_data
+from .crypto_manager import CryptoManager
+from .http_api import post_text, login
 from .writer import Writer
 from .chat import Chat
 from .channel import Channel
 from .packet import Packet
 
+
+import json
+import asyncio
+import struct
+from socket import socket
 import bson
 
 
 class Client:
     def __init__(self, device_name, device_uuid):
         self.__sock: socket
-        self.__StreamReader: asyncio.StreamReader
-        self.__StreamWriter: asyncio.StreamWriter
+        self.__stream_reader: asyncio.StreamReader
+        self.__stream_writer: asyncio.StreamWriter
         self.__crypto: CryptoManager
         self.__writer: Writer
-        self.__accessKey: str
+        self.__access_key: str
 
         self.device_name = device_name
         self.device_uuid = device_uuid
 
-        self.__packetID = 0
+        self.__packet_id = 0
 
-        self.__processingBuffer = b""
-        self.__processingHeader = b""
-        self.__processingSize = 0
+        self.__processing_buffer = b""
+        self.__processing_header = b""
+        self.__processing_size = 0
 
         self.packetDict = {}
+        self.loop = None
 
-    def postText(self, chatId, li, text, notice=False):
-        postText(chatId, li, text, notice,
-                 self.__accessKey, self.device_uuid)
+    def post_text(self, chat_id, li, text, notice=False):
+        post_text(chat_id, li, text, notice,
+                  self.__access_key, self.device_uuid)
 
-    async def __recvPacket(self):
-        encryptedBuffer = b""
-        currentPacketSize = 0
+    async def __recv_packet(self):
+        encrypted_buffer = b""
+        current_packet_size = 0
 
         while True:
-            recv = await self.__StreamReader.read(256)
+            recv = await self.__stream_reader.read(256)
 
             if not recv:
                 print(recv)
                 self.loop.stop()
                 break
 
-            encryptedBuffer += recv
+            encrypted_buffer += recv
 
-            if not currentPacketSize and len(encryptedBuffer) >= 4:
-                currentPacketSize = struct.unpack(
-                    "<I", encryptedBuffer[0:4])[0]
+            if not current_packet_size and len(encrypted_buffer) >= 4:
+                current_packet_size = struct.unpack(
+                    "<I", encrypted_buffer[0:4])[0]
 
-            if currentPacketSize:
-                encryptedPacketSize = currentPacketSize+4
+            if current_packet_size:
+                encrypted_packet_size = current_packet_size+4
 
-                if len(encryptedBuffer) >= encryptedPacketSize:
-                    self.loop.create_task(self.__processingPacket(
-                        encryptedBuffer[0:encryptedPacketSize]))
-                    encryptedBuffer = encryptedBuffer[encryptedPacketSize:]
-                    currentPacketSize = 0
+                if len(encrypted_buffer) >= encrypted_packet_size:
+                    self.loop.create_task(self.__processing_packet(
+                        encrypted_buffer[0:encrypted_packet_size]))
+                    encrypted_buffer = encrypted_buffer[encrypted_packet_size:]
+                    current_packet_size = 0
 
-    async def __processingPacket(self, encryptedPacket):
-        encLen = encryptedPacket[0:4]
-        IV = encryptedPacket[4:20]
-        BODY = encryptedPacket[20:]
+    async def __processing_packet(self, encrypted_packet):
+        enc_len = encrypted_packet[0:4]
+        iv = encrypted_packet[4:20]
+        body = encrypted_packet[20:]
 
-        self.__processingBuffer += self.__crypto.aesDecrypt(BODY, IV)
+        self.__processing_buffer += self.__crypto.aes_decrypt(body, iv)
 
-        if not self.__processingHeader and len(self.__processingBuffer) >= 22:
-            self.__processingHeader = self.__processingBuffer[0:22]
-            self.__processingSize = struct.unpack(
-                "<i", self.__processingHeader[18:22])[0] + 22
+        if not self.__processing_header and len(self.__processing_buffer) >= 22:
+            self.__processing_header = self.__processing_buffer[0:22]
+            self.__processing_size = struct.unpack(
+                "<i", self.__processing_header[18:22])[0] + 22
 
-        if self.__processingHeader:
-            if len(self.__processingBuffer) >= self.__processingSize:
+        if self.__processing_header:
+            if len(self.__processing_buffer) >= self.__processing_size:
                 p = Packet()
-                p.readLocoPacket(
-                    self.__processingBuffer[:self.__processingSize])
+                p.read_loco_packet(
+                    self.__processing_buffer[:self.__processing_size])
 
-                self.loop.create_task(self.__onPacket(p))
+                self.loop.create_task(self.__on_packet(p))
 
-                self.__processingBuffer = self.__processingBuffer[self.__processingSize:]
-                self.__processingHeader = b""
+                self.__processing_buffer = self.__processing_buffer[self.__processing_size:]
+                self.__processing_header = b""
 
-    async def __onPacket(self, packet):
-        if packet.PacketID in self.packetDict:
-            self.packetDict[packet.PacketID].set_result(packet)
-            del self.packetDict[packet.PacketID]
+    async def __on_packet(self, packet):
+        if packet.packet_id in self.packetDict:
+            self.packetDict[packet.packet_id].set_result(packet)
+            del self.packetDict[packet.packet_id]
 
-        self.loop.create_task(self.onPacket(packet))
+        self.loop.create_task(self.on_packet(packet))
 
-        body = packet.toJsonBody()
+        body = packet.to_json_body()
 
-        if packet.PacketName == "MSG":
+        if packet.packet_name == "MSG":
             chatId = body["chatLog"]["chatId"]
 
             if "li" in body:
@@ -109,9 +110,9 @@ class Client:
             channel = Channel(chatId, li, self.__writer)
             chat = Chat(channel, body)
 
-            self.loop.create_task(self.onMessage(chat))
+            self.loop.create_task(self.on_message(chat))
 
-        if packet.PacketName == "NEWMEM":
+        if packet.packet_name == "NEWMEM":
             chatId = body["chatLog"]["chatId"]
 
             if "li" in body:
@@ -120,9 +121,9 @@ class Client:
                 li = 0
 
             channel = Channel(chatId, li, self.__writer)
-            self.loop.create_task(self.onJoin(packet, channel))
+            self.loop.create_task(self.on_join(packet, channel))
 
-        if packet.PacketName == "DELMEM":
+        if packet.packet_name == "DELMEM":
             chatId = body["chatLog"]["chatId"]
 
             if "li" in body:
@@ -131,37 +132,37 @@ class Client:
                 li = 0
 
             channel = Channel(chatId, li, self.__writer)
-            self.loop.create_task(self.onQuit(packet, channel))
+            self.loop.create_task(self.on_quit(packet, channel))
 
-        if packet.PacketName == "DECUNREAD":
+        if packet.packet_name == "DECUNREAD":
             chatId = body["chatId"]
 
             channel = Channel(chatId, 0, self.__writer)
-            self.loop.create_task(self.onRead(channel, body))
+            self.loop.create_task(self.on_read(channel, body))
 
-    async def onPacket(self, packet):
+    async def on_packet(self, packet):
         pass
 
-    async def onMessage(self, chat):
+    async def on_message(self, chat):
         pass
 
-    async def onJoin(self, packet, channel):
+    async def on_join(self, packet, channel):
         pass
 
-    async def onQuit(self, packet, channel):
+    async def on_quit(self, packet, channel):
         pass
 
-    async def onRead(self, channel, packet):
+    async def on_read(self, channel, packet):
         pass
 
     async def __heartbeat(self):
         while True:
             await asyncio.sleep(180)
             PingPacket = Packet(0, 0, "PING", 0, bson.encode({}))
-            self.loop.create_task(self.__writer.sendPacket(PingPacket))
+            self.loop.create_task(self.__writer.send_packet(PingPacket))
 
-    async def __login(self, LoginId, LoginPw,):
-        r = json.loads(Login(LoginId, LoginPw,
+    async def __login(self, login_id, login_pw, ):
+        r = json.loads(login(login_id, login_pw,
                              self.device_name, self.device_uuid))
 
         if r["status"] == -101:
@@ -177,20 +178,21 @@ class Client:
             self.loop.stop()
             raise Exception(str(r))
 
-        self.__accessKey = r["access_token"]
+        self.__access_key = r["access_token"]
         # print(self.__accessKey)
 
-        bookingData = getBookingData().toJsonBody()
+        booking_data = get_booking_data().to_json_body()
 
-        checkInData = getCheckInData(
-            bookingData["ticket"]["lsl"][0],
-            bookingData["wifi"]["ports"][0]).toJsonBody()
+        check_in_data = get_check_in_data(
+            booking_data["ticket"]["lsl"][0],
+            booking_data["wifi"]["ports"][0]).to_json_body()
 
-        self.__StreamReader, self.__StreamWriter = await asyncio.open_connection(checkInData["host"], int(checkInData["port"]))
+        self.__stream_reader, self.__stream_writer = await asyncio.open_connection(
+            check_in_data["host"], int(check_in_data["port"]))
 
         self.__crypto = CryptoManager()
         self.__writer = Writer(
-            self.__crypto, self.__StreamWriter, self.packetDict)
+            self.__crypto, self.__stream_writer, self.packetDict)
 
         LoginListPacket = Packet(0, 0, "LOGINLIST", 0, bson.encode({
             "appVer": "3.1.4",
@@ -198,7 +200,7 @@ class Client:
             "os": "win32",
             "lang": "ko",
             "duuid": self.device_uuid,
-            "oauthToken": self.__accessKey,
+            "oauthToken": self.__access_key,
             "dtype": 1,
             "ntype": 0,
             "MCCMNC": "999",
@@ -210,14 +212,14 @@ class Client:
             "bg": False,
         }))
 
-        self.__StreamWriter.write(self.__crypto.getHandshakePacket())
+        self.__stream_writer.write(self.__crypto.get_handshake_packet())
 
-        self.loop.create_task(self.__writer.sendPacket(LoginListPacket))
+        self.loop.create_task(self.__writer.send_packet(LoginListPacket))
 
-        self.loop.create_task(self.__recvPacket())
+        self.loop.create_task(self.__recv_packet())
         self.loop.create_task(self.__heartbeat())
 
-    def run(self, LoginId, LoginPw):
+    def run(self, login_id, login_pw):
         self.loop = asyncio.get_event_loop()
-        self.loop.create_task(self.__login(LoginId, LoginPw))
+        self.loop.create_task(self.__login(login_id, login_pw))
         self.loop.run_forever()

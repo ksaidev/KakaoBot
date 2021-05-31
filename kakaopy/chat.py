@@ -1,7 +1,6 @@
+from .http_api import upload
+
 import json
-
-from .httpApi import upload
-
 import hashlib
 import requests
 
@@ -9,56 +8,51 @@ import requests
 class Chat:
     def __init__(self, channel, body):
         self.channel = channel
-        self.rawBody = body
-        self.logId = self.rawBody["chatLog"]["logId"]
-        self.type = self.rawBody["chatLog"]["type"]
-        self.message = self.rawBody["chatLog"]["message"]
-        self.msgId = self.rawBody["chatLog"]["msgId"]
-        self.authorId = self.rawBody["chatLog"]["authorId"]
+        self.body = body
+        self.log_id = self.body["chatLog"]["logId"]
+        self.type = self.body["chatLog"]["type"]
+        self.message = self.body["chatLog"]["message"]
+        self.msg_id = self.body["chatLog"]["msgId"]
+        self.author_id = self.body["chatLog"]["authorId"]
 
-        try:
-            if "attachment" in self.rawBody["chatLog"]:
-                self.attachment = json.loads(
-                    self.rawBody["chatLog"]["attachment"])
-            else:
-                self.attachment = {}
-        except:
-            pass
+        if "attachment" in self.body["chatLog"]:
+            self.attachment = json.loads(
+                self.body["chatLog"]["attachment"])
+        else:
+            self.attachment = {}
 
-        # authorNickname이 작동하지 않는 관계로 authorId로 대채
-        self.nickName = self.authorId
 
     async def reply(self, msg, t=1):
-        return await self.channel.sendChat(msg, json.dumps({
+        return await self.channel.send_chat(msg, json.dumps({
             "attach_only": False,
             "attach_type": t,
             "mentions": [],
             "src_linkId": self.channel.li,
-            "src_logId": self.logId,
+            "src_logId": self.log_id,
             "src_mentions": [],
             "src_message": self.message,
             "src_type": self.type,
-            "src_userId": self.authorId
+            "src_userId": self.author_id
         }), 26)
 
-    async def sendChat(self, msg, extra, t):
-        return await self.channel.sendChat(msg, extra, t)
+    async def send_chat(self, msg, extra, t):
+        return await self.channel.send_chat(msg, extra, t)
 
-    async def sendText(self, msg):
-        return await self.channel.sendText(msg)
+    async def send_text(self, msg):
+        return await self.channel.send_text(msg)
 
     async def delete(self):
-        return await self.channel.deleteMessage(self.logId)
+        return await self.channel.delete_message(self.log_id)
 
     async def hide(self):
-        return await self.channel.hideMessage(self.logId, self.type)
+        return await self.channel.hide_message(self.log_id, self.type)
 
     async def kick(self):
-        return await self.channel.kickMember(self.authorId)
+        return await self.channel.kick_member(self.author_id)
 
-    async def sendPhoto(self, data, w, h):
-        path, key, url = upload(data, "image/jpeg", self.authorId)
-        return await self.channel.forwardChat("", json.dumps({
+    async def send_photo(self, data, w, h):
+        path, key, url = upload(data, "image/jpeg", self.author_id)
+        return await self.channel.forward_chat("", json.dumps({
             "thumbnailUrl": url,
             "thumbnailHeight": w,
             "thumbnailWidth": h,
@@ -71,20 +65,21 @@ class Chat:
             "mt": "image/jpeg"
         }), 2)
 
-    async def sendPhotoPath(self, path, w, h):
+    async def send_photo_by_path(self, path, w, h):
         with open(path, "rb") as f:
             data = f.read()
 
-        return await self.sendPhoto(data, w, h)
+        return await self.send_photo(data, w, h)
 
-    async def sendPhotoUrl(self, url, w, h):
+    async def send_photo_by_url(self, url, w, h):
         r = requests.get(url)
         r.raise_for_status()
 
-        return await self.sendPhoto(r.content, w, h)
+        return await self.send_photo(r.content, w, h)
 
-    async def sendLongText(self, title, content):
+    async def send_long_text(self, title, content):
         path, key, url = upload(content.encode(
-            "utf-8"), "image/jpeg", self.authorId)
+            "utf-8"), "image/jpeg", self.author_id)
 
-        return await self.channel.forwardChat(title, json.dumps({"path": path, "k": key, "s": len(content), "cs": "", "sd": True}), 1)
+        return await self.channel.forward_chat(title, json.dumps(
+            {"path": path, "k": key, "s": len(content), "cs": "", "sd": True}), 1)
