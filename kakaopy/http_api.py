@@ -5,8 +5,8 @@ import hashlib
 
 AGENT = "win32"
 LANG = "ko"
-VERSION = "3.1.1"
-APP_VERSION = "3.1.1.2441"
+VERSION = "3.2.7"
+APP_VERSION = "3.2.7.2777"
 OS_VERSION = "10.0"
 
 AUTH_HEADER = f"{AGENT}/{VERSION}/{LANG}"
