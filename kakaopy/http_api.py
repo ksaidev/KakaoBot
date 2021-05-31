@@ -1,16 +1,12 @@
-import json
+from .config import APP_VERSION, OS_VERSION, AGENT, LANG
 
+import json
 import requests
 import hashlib
 
-AGENT = "win32"
-LANG = "ko"
-VERSION = "3.2.7"
-APP_VERSION = "3.2.7.2777"
-OS_VERSION = "10.0"
 
-AUTH_HEADER = f"{AGENT}/{VERSION}/{LANG}"
-UTH_USER_AGENT = f"KT/{VERSION} Wd/{OS_VERSION} {LANG}"
+AUTH_HEADER = f"{AGENT}/{APP_VERSION}/{LANG}"
+UTH_USER_AGENT = f"KT/{APP_VERSION} Wd/{OS_VERSION} {LANG}"
 
 LOGIN_URL = "https://ac-sb-talk.kakao.com/win32/account/login.json"
 REGISTER_DEVICE_URL = "https://ac-sb-talk.kakao.com/win32/account/register_device.json"
