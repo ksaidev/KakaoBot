@@ -195,7 +195,7 @@ class Client:
             self.__crypto, self.__stream_writer, self.packetDict)
 
         LoginListPacket = Packet(0, 0, "LOGINLIST", 0, bson.encode({
-            "appVer": "3.1.4",
+            "appVer": "3.2.7",
             "prtVer": "1",
             "os": "win32",
             "lang": "ko",

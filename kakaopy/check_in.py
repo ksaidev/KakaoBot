@@ -19,7 +19,7 @@ def get_check_in_data(host: str, port: int):
         "userId": 0,
         "os": "win32",
         "ntype": 0,
-        "appVer": "3.14",
+        "appVer": "3.2.7",
         "MCCMNC": "999",
         "lang": "ko",
     }))
