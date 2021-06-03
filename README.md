@@ -15,7 +15,7 @@ pip install -r requirements.txt
 
 ## Formatter
 
-Recommend formatter : autopep 아니 이거는 아무 상관 없는거자나
+Recommend formatter : pep8
 
 ## Library
 Standard library
@@ -52,5 +52,5 @@ External
         await chat.channel.send_chat("",json.dumps(attachment),12) 
 
     if chat.message == "일정":
-        attachment = {"개인정보 떄문에 삭재하였습니다"}
+        attachment = {"개인정보 떄문에 삭제하였습니다"}
         await chat.channel.send_chat("",json.dumps(attachment),71) 
