@@ -150,7 +150,7 @@ class Client:
                 li = 0
 
             channel = Channel(chat_id, li, self.__writer)
-            chat = Chat(channel, body["chatLog"])
+            chat = Chat(channel, body)
 
             self.loop.create_task(self.on_delete(chat))
 
