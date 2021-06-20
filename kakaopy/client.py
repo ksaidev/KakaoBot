@@ -101,45 +101,58 @@ class Client:
         body = packet.to_json_body()
 
         if packet.packet_name == "MSG":
-            chatId = body["chatLog"]["chatId"]
+            chat_id = body["chatLog"]["chatId"]
 
             if "li" in body:
                 li = body["li"]
             else:
                 li = 0
 
-            channel = Channel(chatId, li, self.__writer)
+            channel = Channel(chat_id, li, self.__writer)
             chat = Chat(channel, body)
 
             self.loop.create_task(self.on_message(chat))
 
         if packet.packet_name == "NEWMEM":
-            chatId = body["chatLog"]["chatId"]
+            chat_id = body["chatLog"]["chatId"]
 
             if "li" in body:
                 li = body["li"]
             else:
                 li = 0
 
-            channel = Channel(chatId, li, self.__writer)
+            channel = Channel(chat_id, li, self.__writer)
             self.loop.create_task(self.on_join(packet, channel))
 
         if packet.packet_name == "DELMEM":
-            chatId = body["chatLog"]["chatId"]
+            chat_id = body["chatLog"]["chatId"]
 
             if "li" in body:
                 li = body["li"]
             else:
                 li = 0
 
-            channel = Channel(chatId, li, self.__writer)
+            channel = Channel(chat_id, li, self.__writer)
             self.loop.create_task(self.on_quit(packet, channel))
 
         if packet.packet_name == "DECUNREAD":
-            chatId = body["chatId"]
+            chat_id = body["chatId"]
 
-            channel = Channel(chatId, 0, self.__writer)
+            channel = Channel(chat_id, 0, self.__writer)
             self.loop.create_task(self.on_read(channel, body))
+
+        if packet.packet_name == "SYNCDLMSG":
+            chat_id = body["chatLog"]["chatId"]
+
+            if "li" in body["chatLog"]:
+                li = body["chatLog"]["li"]
+            else:
+                li = 0
+
+            channel = Channel(chat_id, li, self.__writer)
+            chat = Chat(channel, body)
+
+            self.loop.create_task(self.on_delete(chat))
 
     async def on_packet(self, packet):
         pass
@@ -154,6 +167,9 @@ class Client:
         pass
 
     async def on_read(self, channel, packet):
+        pass
+
+    async def on_delete(self, chat):
         pass
 
     async def __heartbeat(self):
