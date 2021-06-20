@@ -141,6 +141,19 @@ class Client:
             channel = Channel(chatId, 0, self.__writer)
             self.loop.create_task(self.on_read(channel, body))
 
+        if packet.packet_name == "SYNCDLMSG":
+            chatId = body["chatLog"]["chatId"]
+
+            if "li" in body["chatLog"]:
+                li = body["chatLog"]["li"]
+            else:
+                li = 0
+
+            channel = Channel(chatId, li, self.__writer)
+            chat = Chat(channel, body["chatLog"])
+
+            self.loop.create_task(self.on_delete(chat))
+
     async def on_packet(self, packet):
         pass
 
@@ -154,6 +167,9 @@ class Client:
         pass
 
     async def on_read(self, channel, packet):
+        pass
+
+    async def on_delete(self, chat):
         pass
 
     async def __heartbeat(self):
