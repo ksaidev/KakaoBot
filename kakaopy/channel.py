@@ -14,9 +14,6 @@ class Channel:
         packet = Packet(0, 0, command, 0, bson.encode(data))
         return (await self.writer.send_packet(packet)).to_json_body()
 
-    async def leaveChannel(self):
-        return await self.__sendPacket("LEAVE", {"chatId": self.chatId})
-
     async def send_chat(self, msg, extra, t):
         data = {
             "chatId": self.chat_id,
