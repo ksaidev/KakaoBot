@@ -57,6 +57,12 @@ class Channel:
             }
             return await self.__send_packet("REWRITE", data)
 
+    async def leave(self):
+        data = {
+            "chatId": self.chat_id,
+        }
+        return await self.__send_packet("LEAVE", data)
+
     async def kick_member(self, mid):
         if self.li:
             data = {
